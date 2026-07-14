@@ -52,10 +52,47 @@
         }
 
         .subtitle {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             color: #6b7280;
             line-height: 1.5;
             text-align: center;
+        }
+
+        .security-note {
+            margin-bottom: 20px;
+            padding: 11px 13px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1e40af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .alert-success {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            background: #f0fdf4;
+            color: #166534;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-summary {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-summary ul {
+            margin-top: 7px;
+            padding-left: 20px;
         }
 
         .form-group {
@@ -84,6 +121,22 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
+        .input-error {
+            border-color: #dc2626 !important;
+        }
+
+        .input-error:focus {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
         .form-options {
             display: flex;
             align-items: center;
@@ -97,6 +150,13 @@
             display: flex;
             align-items: center;
             gap: 7px;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .remember-option input {
+            width: auto;
         }
 
         .form-options a,
@@ -133,52 +193,90 @@
             text-align: center;
         }
 
-        .security-note {
-            margin-bottom: 20px;
-            padding: 11px 13px;
-            border-radius: 8px;
-            background: #eff6ff;
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.4;
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 22px;
+            }
+
+            .form-options {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
     <main class="login-container">
-        <div class="portal-name">Job Portal Website</div>
+        <div class="portal-name">
+            Job Portal Website
+        </div>
 
         <h1>Welcome Back</h1>
 
         <p class="subtitle">
-            Log in to access your job seeker account.
+            Log in to access your job seeker account securely.
         </p>
 
         <div class="security-note">
-            Enter your registered email address and password securely.
+            Enter your registered email address and password.
         </div>
 
-        <!--
-            Week 1 Commit 1 only creates the login interface.
-            Authentication will be implemented in the next commits.
-        -->
-        <form>
+        @if (session('success'))
+            <div class="alert-success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="error-summary" role="alert">
+                <strong>
+                    Please correct the following information:
+                </strong>
+
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form
+            method="POST"
+            action="{{ route('login.store') }}"
+            novalidate
+        >
+            @csrf
+
             <div class="form-group">
-                <label for="email">Email Address</label>
+                <label for="email">
+                    Email Address
+                </label>
 
                 <input
                     type="email"
                     id="email"
                     name="email"
+                    value="{{ old('email') }}"
                     placeholder="Enter your email address"
                     autocomplete="email"
+                    class="@error('email') input-error @enderror"
                     required
+                    autofocus
                 >
+
+                @error('email')
+                    <span class="error-message">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">
+                    Password
+                </label>
 
                 <input
                     type="password"
@@ -186,27 +284,40 @@
                     name="password"
                     placeholder="Enter your password"
                     autocomplete="current-password"
+                    class="@error('password') input-error @enderror"
                     required
                 >
+
+                @error('password')
+                    <span class="error-message">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
             <div class="form-options">
-                <label class="remember-option" for="remember">
+                <label
+                    class="remember-option"
+                    for="remember"
+                >
                     <input
                         type="checkbox"
                         id="remember"
                         name="remember"
+                        value="1"
+                        {{ old('remember') ? 'checked' : '' }}
                     >
 
                     Remember me
                 </label>
 
-                <a href="#">Forgot password?</a>
+                <a href="#">
+                    Forgot password?
+                </a>
             </div>
 
-            <!-- Changed to submit in the next commit -->
             <button
-                type="button"
+                type="submit"
                 class="login-button"
             >
                 Log In
