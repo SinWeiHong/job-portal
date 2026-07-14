@@ -315,11 +315,16 @@
                         </label>
 
                         <input
-                            type="date"
-                            id="application_deadline"
-                            name="application_deadline"
-                            required
-                        >
+    type="date"
+    id="application_deadline"
+    name="application_deadline"
+    min="{{ now()->toDateString() }}"
+    required
+>
+
+<span class="field-help">
+    The application deadline cannot be earlier than today.
+</span>
                     </div>
 
                     <div class="form-group">
