@@ -52,10 +52,47 @@
         }
 
         .subtitle {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             color: #6b7280;
             line-height: 1.5;
             text-align: center;
+        }
+
+        .role-note {
+            margin-bottom: 20px;
+            padding: 11px 13px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1e40af;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .alert-success {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            background: #f0fdf4;
+            color: #166534;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-summary {
+            margin-bottom: 20px;
+            padding: 12px 14px;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-summary ul {
+            margin-top: 7px;
+            padding-left: 20px;
         }
 
         .form-group {
@@ -80,6 +117,22 @@
         input:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .input-error {
+            border-color: #dc2626;
+        }
+
+        .input-error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
         }
 
         .register-button {
@@ -114,16 +167,6 @@
         .login-text a:hover {
             text-decoration: underline;
         }
-
-        .role-note {
-            margin-bottom: 20px;
-            padding: 11px 13px;
-            border-radius: 8px;
-            background: #eff6ff;
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.4;
-        }
     </style>
 </head>
 
@@ -141,11 +184,31 @@
             This registration page is for job seekers.
         </div>
 
-        <!--
-            Week 1 Commit 1 only creates the registration interface.
-            Form submission will be implemented in the next commit.
-        -->
-        <form>
+        @if (session('success'))
+            <div class="alert-success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="error-summary" role="alert">
+                <strong>Please correct the following information:</strong>
+
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form
+            method="POST"
+            action="{{ route('register.store') }}"
+            novalidate
+        >
+            @csrf
+
             <div class="form-group">
                 <label for="name">Full Name</label>
 
@@ -153,10 +216,18 @@
                     type="text"
                     id="name"
                     name="name"
+                    value="{{ old('name') }}"
                     placeholder="Enter your full name"
                     autocomplete="name"
+                    class="@error('name') input-error @enderror"
                     required
                 >
+
+                @error('name')
+                    <span class="error-message">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -166,10 +237,18 @@
                     type="email"
                     id="email"
                     name="email"
+                    value="{{ old('email') }}"
                     placeholder="Enter your email address"
                     autocomplete="email"
+                    class="@error('email') input-error @enderror"
                     required
                 >
+
+                @error('email')
+                    <span class="error-message">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -179,10 +258,17 @@
                     type="password"
                     id="password"
                     name="password"
-                    placeholder="Enter your password"
+                    placeholder="Enter at least 8 characters"
                     autocomplete="new-password"
+                    class="@error('password') input-error @enderror"
                     required
                 >
+
+                @error('password')
+                    <span class="error-message">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -200,9 +286,8 @@
                 >
             </div>
 
-            <!-- Changed to submit in Commit 2 -->
             <button
-                type="button"
+                type="submit"
                 class="register-button"
             >
                 Register
@@ -211,7 +296,10 @@
 
         <p class="login-text">
             Already have an account?
-            <a href="#">Log in here</a>
+
+            <a href="{{ url('/login') }}">
+                Log in here
+            </a>
         </p>
     </main>
 </body>
