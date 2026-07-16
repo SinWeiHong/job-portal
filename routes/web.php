@@ -11,3 +11,8 @@ Route::get(
     '/employer/jobs/create',
     [JobPostController::class, 'create']
 )->name('jobs.create');
+
+Route::post(
+    '/employer/jobs',
+    [JobPostController::class, 'store']
+)->name('jobs.store');

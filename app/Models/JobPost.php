@@ -10,6 +10,9 @@ class JobPost extends Model
 {
     use HasFactory;
 
+    /**
+     * Fields that may be stored through mass assignment.
+     */
     protected $fillable = [
         'employer_id',
         'title',
@@ -23,6 +26,9 @@ class JobPost extends Model
         'status',
     ];
 
+    /**
+     * Convert selected database values into suitable data types.
+     */
     protected function casts(): array
     {
         return [
@@ -32,6 +38,9 @@ class JobPost extends Model
         ];
     }
 
+    /**
+     * A job posting belongs to one employer.
+     */
     public function employer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'employer_id');

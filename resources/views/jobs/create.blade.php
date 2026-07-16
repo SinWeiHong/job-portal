@@ -66,6 +66,31 @@
             font-size: 20px;
         }
 
+        .alert-success {
+            margin-bottom: 20px;
+            padding: 13px 15px;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            background: #f0fdf4;
+            color: #166534;
+            line-height: 1.5;
+        }
+
+        .error-summary {
+            margin-bottom: 20px;
+            padding: 13px 15px;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            line-height: 1.5;
+        }
+
+        .error-summary ul {
+            margin-top: 8px;
+            padding-left: 22px;
+        }
+
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -108,6 +133,22 @@
         textarea:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .input-error {
+            border-color: #dc2626;
+        }
+
+        .input-error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
         }
 
         textarea {
@@ -168,16 +209,6 @@
             background: #1d4ed8;
         }
 
-        .development-note {
-            margin-top: 16px;
-            padding: 11px 13px;
-            border-radius: 8px;
-            background: #fffbeb;
-            color: #92400e;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
         @media (max-width: 700px) {
             .form-grid,
             .salary-fields {
@@ -203,7 +234,9 @@
 <body>
     <main class="page-container">
         <header class="page-header">
-            <div class="portal-name">Job Portal Website</div>
+            <div class="portal-name">
+                Job Portal Website
+            </div>
 
             <h1>Create Job Posting</h1>
 
@@ -214,14 +247,37 @@
         </header>
 
         <section class="form-card">
-            <h2 class="section-title">Job Information</h2>
+            <h2 class="section-title">
+                Job Information
+            </h2>
 
-            <!--
-                Week 1 Commit 2 creates the job posting interface only.
-                Validation and database storage will be implemented
-                in the next commit.
-            -->
-            <form id="job-post-form">
+            @if (session('success'))
+                <div class="alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="error-summary" role="alert">
+                    <strong>
+                        Please correct the following information:
+                    </strong>
+
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form
+                method="POST"
+                action="{{ route('jobs.store') }}"
+                novalidate
+            >
+                @csrf
+
                 <div class="form-grid">
                     <div class="form-group full-width">
                         <label for="title">
@@ -233,10 +289,18 @@
                             type="text"
                             id="title"
                             name="title"
+                            value="{{ old('title') }}"
                             maxlength="150"
                             placeholder="Example: Junior Software Developer"
+                            class="@error('title') input-error @enderror"
                             required
                         >
+
+                        @error('title')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -249,10 +313,18 @@
                             type="text"
                             id="location"
                             name="location"
+                            value="{{ old('location') }}"
                             maxlength="150"
                             placeholder="Example: Kuala Lumpur"
+                            class="@error('location') input-error @enderror"
                             required
                         >
+
+                        @error('location')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
@@ -264,19 +336,60 @@
                         <select
                             id="employment_type"
                             name="employment_type"
+                            class="@error('employment_type') input-error @enderror"
                             required
                         >
-                            <option value="">Select employment type</option>
-                            <option value="Full-time">Full-time</option>
-                            <option value="Part-time">Part-time</option>
-                            <option value="Contract">Contract</option>
-                            <option value="Internship">Internship</option>
-                            <option value="Temporary">Temporary</option>
+                            <option value="">
+                                Select employment type
+                            </option>
+
+                            <option
+                                value="Full-time"
+                                @selected(old('employment_type') === 'Full-time')
+                            >
+                                Full-time
+                            </option>
+
+                            <option
+                                value="Part-time"
+                                @selected(old('employment_type') === 'Part-time')
+                            >
+                                Part-time
+                            </option>
+
+                            <option
+                                value="Contract"
+                                @selected(old('employment_type') === 'Contract')
+                            >
+                                Contract
+                            </option>
+
+                            <option
+                                value="Internship"
+                                @selected(old('employment_type') === 'Internship')
+                            >
+                                Internship
+                            </option>
+
+                            <option
+                                value="Temporary"
+                                @selected(old('employment_type') === 'Temporary')
+                            >
+                                Temporary
+                            </option>
                         </select>
+
+                        @error('employment_type')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="form-group full-width">
-                        <label>Monthly Salary Range (RM)</label>
+                        <label>
+                            Monthly Salary Range (RM)
+                        </label>
 
                         <div class="salary-fields">
                             <div>
@@ -284,10 +397,18 @@
                                     type="number"
                                     id="salary_min"
                                     name="salary_min"
+                                    value="{{ old('salary_min') }}"
                                     min="0"
                                     step="0.01"
                                     placeholder="Minimum salary"
+                                    class="@error('salary_min') input-error @enderror"
                                 >
+
+                                @error('salary_min')
+                                    <span class="error-message">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
                             </div>
 
                             <div>
@@ -295,16 +416,24 @@
                                     type="number"
                                     id="salary_max"
                                     name="salary_max"
+                                    value="{{ old('salary_max') }}"
                                     min="0"
                                     step="0.01"
                                     placeholder="Maximum salary"
+                                    class="@error('salary_max') input-error @enderror"
                                 >
+
+                                @error('salary_max')
+                                    <span class="error-message">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
                             </div>
                         </div>
 
                         <span class="field-help">
-                            Leave both salary fields empty when the salary
-                            is negotiable or confidential.
+                            Leave both fields empty when salary is
+                            negotiable or confidential.
                         </span>
                     </div>
 
@@ -315,16 +444,24 @@
                         </label>
 
                         <input
-    type="date"
-    id="application_deadline"
-    name="application_deadline"
-    min="{{ now()->toDateString() }}"
-    required
->
+                            type="date"
+                            id="application_deadline"
+                            name="application_deadline"
+                            value="{{ old('application_deadline') }}"
+                            min="{{ now()->toDateString() }}"
+                            class="@error('application_deadline') input-error @enderror"
+                            required
+                        >
 
-<span class="field-help">
-    The application deadline cannot be earlier than today.
-</span>
+                        @error('application_deadline')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                        <span class="field-help">
+                            The deadline cannot be earlier than today.
+                        </span>
                     </div>
 
                     <div class="form-group">
@@ -336,11 +473,29 @@
                         <select
                             id="status"
                             name="status"
+                            class="@error('status') input-error @enderror"
                             required
                         >
-                            <option value="open" selected>Open</option>
-                            <option value="draft">Draft</option>
+                            <option
+                                value="open"
+                                @selected(old('status', 'open') === 'open')
+                            >
+                                Open
+                            </option>
+
+                            <option
+                                value="draft"
+                                @selected(old('status') === 'draft')
+                            >
+                                Draft
+                            </option>
                         </select>
+
+                        @error('status')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="form-group full-width">
@@ -352,9 +507,17 @@
                         <textarea
                             id="description"
                             name="description"
+                            maxlength="5000"
                             placeholder="Describe the responsibilities, duties and working conditions."
+                            class="@error('description') input-error @enderror"
                             required
-                        ></textarea>
+                        >{{ old('description') }}</textarea>
+
+                        @error('description')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
 
                     <div class="form-group full-width">
@@ -365,8 +528,16 @@
                         <textarea
                             id="requirements"
                             name="requirements"
+                            maxlength="5000"
                             placeholder="Enter the required qualifications, skills and experience."
-                        ></textarea>
+                            class="@error('requirements') input-error @enderror"
+                        >{{ old('requirements') }}</textarea>
+
+                        @error('requirements')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
@@ -378,19 +549,12 @@
                         Cancel
                     </a>
 
-                    <!-- Changed to submit in Week 2 Commit 3 -->
                     <button
-                        type="button"
+                        type="submit"
                         class="button create-button"
                     >
                         Create Job Posting
                     </button>
-                </div>
-
-                <div class="development-note">
-                    This development version displays the job posting
-                    form only. Form validation and database storage will
-                    be implemented in the next commit.
                 </div>
             </form>
         </section>
