@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -18,13 +20,11 @@ class RegisterController extends Controller
     }
 
     /**
-     * Validate the submitted job seeker registration information.
-     *
-     * The account will be saved to the database in the next commit.
+     * Validate and create a new job seeker account.
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate(
+        $validated = $request->validate(
             [
                 'name' => [
                     'required',
@@ -61,13 +61,18 @@ class RegisterController extends Controller
             ]
         );
 
-        /*
-         * User creation will be implemented in Week 2 Commit 3.
-         * This commit confirms that all submitted information is valid.
-         */
-        return back()->with(
-            'success',
-            'Registration information is valid. Account creation will be implemented in the next development stage.'
-        );
+        User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'job_seeker',
+        ]);
+
+        return redirect()
+            ->route('register')
+            ->with(
+                'success',
+                'Your job seeker account has been registered successfully.'
+            );
     }
 }
