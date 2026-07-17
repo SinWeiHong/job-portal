@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\JobPost;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class JobPostController extends Controller
@@ -13,8 +12,18 @@ class JobPostController extends Controller
     /**
      * Display the create job posting page.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        /*
+         * Only authenticated employer accounts may access
+         * the create job posting page.
+         */
+        abort_unless(
+            $request->user()?->role === 'employer',
+            403,
+            'Only employer accounts can create job postings.'
+        );
+
         return view('jobs.create');
     }
 
@@ -23,6 +32,16 @@ class JobPostController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        /*
+         * Prevent job seekers and other account types
+         * from submitting new job postings.
+         */
+        abort_unless(
+            $request->user()?->role === 'employer',
+            403,
+            'Only employer accounts can create job postings.'
+        );
+
         $validated = $request->validate(
             [
                 'title' => [
@@ -140,21 +159,8 @@ class JobPostController extends Controller
             ]
         );
 
-        /*
-         * The login function is being developed under JPW-11.
-         * The job posting can only be stored after a user is authenticated.
-         */
-        if (! Auth::check()) {
-            return redirect()
-                ->route('login')
-                ->with(
-                    'error',
-                    'Please log in before creating a job posting.'
-                );
-        }
-
         JobPost::create([
-            'employer_id' => Auth::id(),
+            'employer_id' => $request->user()->id,
             'title' => $validated['title'],
             'description' => $validated['description'],
             'requirements' => $validated['requirements'] ?? null,
