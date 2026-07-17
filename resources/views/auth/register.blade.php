@@ -30,7 +30,7 @@
 
         .registration-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             padding: 36px;
             background: #ffffff;
             border-radius: 14px;
@@ -65,7 +65,7 @@
             background: #eff6ff;
             color: #1e40af;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .alert-success {
@@ -133,7 +133,9 @@
             margin-top: 6px;
             color: #dc2626;
             font-size: 13px;
+            line-height: 1.4;
         }
+
 
         .register-button {
             width: 100%;
@@ -167,12 +169,20 @@
         .login-text a:hover {
             text-decoration: underline;
         }
+
+        @media (max-width: 520px) {
+            .registration-container {
+                padding: 28px 22px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <main class="registration-container">
-        <div class="portal-name">Job Portal Website</div>
+        <div class="portal-name">
+            Job Portal Website
+        </div>
 
         <h1>Create an Account</h1>
 
@@ -181,7 +191,7 @@
         </p>
 
         <div class="role-note">
-            This registration page is for job seekers.
+            This public registration page creates a Job Seeker account.
         </div>
 
         @if (session('success'))
@@ -192,7 +202,9 @@
 
         @if ($errors->any())
             <div class="error-summary" role="alert">
-                <strong>Please correct the following information:</strong>
+                <strong>
+                    Please correct the following information:
+                </strong>
 
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -210,7 +222,9 @@
             @csrf
 
             <div class="form-group">
-                <label for="name">Full Name</label>
+                <label for="name">
+                    Full Name
+                </label>
 
                 <input
                     type="text"
@@ -219,8 +233,10 @@
                     value="{{ old('name') }}"
                     placeholder="Enter your full name"
                     autocomplete="name"
+                    maxlength="255"
                     class="@error('name') input-error @enderror"
                     required
+                    autofocus
                 >
 
                 @error('name')
@@ -231,7 +247,9 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Email Address</label>
+                <label for="email">
+                    Email Address
+                </label>
 
                 <input
                     type="email"
@@ -240,6 +258,7 @@
                     value="{{ old('email') }}"
                     placeholder="Enter your email address"
                     autocomplete="email"
+                    maxlength="255"
                     class="@error('email') input-error @enderror"
                     required
                 >
@@ -251,15 +270,19 @@
                 @enderror
             </div>
 
+
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">
+                    Password
+                </label>
 
                 <input
                     type="password"
                     id="password"
                     name="password"
-                    placeholder="Enter at least 8 characters"
+                    placeholder="Example: Password1!"
                     autocomplete="new-password"
+                    minlength="8"
                     class="@error('password') input-error @enderror"
                     required
                 >
@@ -282,6 +305,7 @@
                     name="password_confirmation"
                     placeholder="Enter your password again"
                     autocomplete="new-password"
+                    minlength="8"
                     required
                 >
             </div>
