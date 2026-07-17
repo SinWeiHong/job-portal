@@ -8,7 +8,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Job Seeker Dashboard | Job Portal</title>
+    <title>Dashboard | Job Portal</title>
 
     <style>
         * {
@@ -31,15 +31,45 @@
             margin: 0 auto;
         }
 
+        .top-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 28px;
+            padding: 18px 24px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
         .portal-name {
-            margin-bottom: 8px;
             color: #2563eb;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
         }
 
+        .logout-form {
+            margin: 0;
+        }
+
+        .logout-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #b91c1c;
+        }
+
         .dashboard-header {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         h1 {
@@ -78,13 +108,13 @@
 
         .profile-row {
             display: grid;
-            grid-template-columns: 160px 1fr;
+            grid-template-columns: 170px 1fr;
             gap: 20px;
             padding: 14px 0;
             border-bottom: 1px solid #f3f4f6;
         }
 
-        .profile-row:last-child {
+        .profile-row:last-of-type {
             border-bottom: none;
         }
 
@@ -118,6 +148,23 @@
         }
 
         @media (max-width: 600px) {
+            body {
+                padding: 24px 14px;
+            }
+
+            .top-navigation {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .logout-button {
+                width: 100%;
+            }
+
+            .logout-form {
+                width: 100%;
+            }
+
             .profile-row {
                 grid-template-columns: 1fr;
                 gap: 6px;
@@ -126,21 +173,42 @@
             .profile-card {
                 padding: 24px 20px;
             }
+
+            h1 {
+                font-size: 27px;
+            }
         }
     </style>
 </head>
 
 <body>
     <main class="dashboard-container">
-        <header class="dashboard-header">
+        <nav class="top-navigation">
             <div class="portal-name">
                 Job Portal Website
             </div>
 
+            <form
+                method="POST"
+                action="{{ route('logout') }}"
+                class="logout-form"
+            >
+                @csrf
+
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+                    Log Out
+                </button>
+            </form>
+        </nav>
+
+        <header class="dashboard-header">
             <h1>Job Seeker Dashboard</h1>
 
             <p class="subtitle">
-                Welcome to your secure account dashboard.
+                Welcome to your secure Job Portal account.
             </p>
         </header>
 
@@ -187,8 +255,8 @@
 
             <div class="dashboard-message">
                 You have successfully logged in to the Job Portal.
-                Additional job searching and profile functions will
-                be added in future sprints.
+                Additional job searching, application and profile
+                management functions will be added in future sprints.
             </div>
         </section>
     </main>

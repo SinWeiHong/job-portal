@@ -11,7 +11,7 @@ use Illuminate\View\View;
 class LoginController extends Controller
 {
     /**
-     * Display the job seeker login page.
+     * Display the login page.
      */
     public function create(): View
     {
@@ -19,7 +19,8 @@ class LoginController extends Controller
     }
 
     /**
-     * Validate the login details and authenticate the user.
+     * Validate the submitted credentials
+     * and authenticate the user.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -35,7 +36,6 @@ class LoginController extends Controller
                 'password' => [
                     'required',
                     'string',
-                    'min:8',
                 ],
 
                 'remember' => [
@@ -55,9 +55,6 @@ class LoginController extends Controller
 
                 'password.required' =>
                     'Please enter your password.',
-
-                'password.min' =>
-                    'The password must contain at least 8 characters.',
             ]
         );
 
@@ -78,7 +75,7 @@ class LoginController extends Controller
         }
 
         /*
-         * Regenerate the session after successful authentication.
+         * Generate a new session ID after successful login.
          */
         $request->session()->regenerate();
 
@@ -87,6 +84,28 @@ class LoginController extends Controller
             ->with(
                 'success',
                 'You have logged in successfully.'
+            );
+    }
+
+    /**
+     * Log the authenticated user out securely.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::logout();
+
+        /*
+         * Remove the previous authenticated session
+         * and generate a new CSRF token.
+         */
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
+            ->with(
+                'success',
+                'You have logged out successfully.'
             );
     }
 }

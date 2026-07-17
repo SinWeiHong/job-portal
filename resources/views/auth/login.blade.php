@@ -8,7 +8,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Job Seeker Login | Job Portal</title>
+    <title>Login | Job Portal</title>
 
     <style>
         * {
@@ -30,7 +30,7 @@
 
         .login-container {
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
             padding: 36px;
             background: #ffffff;
             border-radius: 14px;
@@ -56,16 +56,6 @@
             color: #6b7280;
             line-height: 1.5;
             text-align: center;
-        }
-
-        .security-note {
-            margin-bottom: 20px;
-            padding: 11px 13px;
-            border-radius: 8px;
-            background: #eff6ff;
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.4;
         }
 
         .alert-success {
@@ -111,6 +101,7 @@
             padding: 12px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
+            background: #ffffff;
             font-size: 15px;
             outline: none;
         }
@@ -135,40 +126,28 @@
             margin-top: 6px;
             color: #dc2626;
             font-size: 13px;
+            line-height: 1.4;
         }
 
-        .form-options {
+        .remember-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
             margin-bottom: 20px;
-            font-size: 14px;
         }
 
-        .remember-option {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 0;
-            font-weight: normal;
+        .remember-row input {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
             cursor: pointer;
         }
 
-        .remember-option input {
-            width: auto;
-        }
-
-        .form-options a,
-        .register-text a {
-            color: #2563eb;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .form-options a:hover,
-        .register-text a:hover {
-            text-decoration: underline;
+        .remember-row label {
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: normal;
+            cursor: pointer;
         }
 
         .login-button {
@@ -193,14 +172,19 @@
             text-align: center;
         }
 
-        @media (max-width: 480px) {
+        .register-text a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .register-text a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 500px) {
             .login-container {
                 padding: 28px 22px;
-            }
-
-            .form-options {
-                align-items: flex-start;
-                flex-direction: column;
             }
         }
     </style>
@@ -212,26 +196,24 @@
             Job Portal Website
         </div>
 
-        <h1>Welcome Back</h1>
+        <h1>Log In</h1>
 
         <p class="subtitle">
-            Log in to access your job seeker account securely.
+            Enter your account details to access the Job Portal.
         </p>
 
-        <div class="security-note">
-            Enter your registered email address and password.
-        </div>
-
+        {{-- Display login or logout success message. --}}
         @if (session('success'))
             <div class="alert-success" role="alert">
                 {{ session('success') }}
             </div>
         @endif
 
+        {{-- Display validation and incorrect credential errors. --}}
         @if ($errors->any())
             <div class="error-summary" role="alert">
                 <strong>
-                    Please correct the following information:
+                    Unable to log in:
                 </strong>
 
                 <ul>
@@ -261,6 +243,7 @@
                     value="{{ old('email') }}"
                     placeholder="Enter your email address"
                     autocomplete="email"
+                    maxlength="255"
                     class="@error('email') input-error @enderror"
                     required
                     autofocus
@@ -295,25 +278,18 @@
                 @enderror
             </div>
 
-            <div class="form-options">
-                <label
-                    class="remember-option"
-                    for="remember"
+            <div class="remember-row">
+                <input
+                    type="checkbox"
+                    id="remember"
+                    name="remember"
+                    value="1"
+                    @checked(old('remember'))
                 >
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                        value="1"
-                        {{ old('remember') ? 'checked' : '' }}
-                    >
 
+                <label for="remember">
                     Remember me
                 </label>
-
-                <a href="#">
-                    Forgot password?
-                </a>
             </div>
 
             <button
