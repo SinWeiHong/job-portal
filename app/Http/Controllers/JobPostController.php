@@ -14,10 +14,6 @@ class JobPostController extends Controller
      */
     public function create(Request $request): View
     {
-        /*
-         * Only authenticated employer accounts may access
-         * the create job posting page.
-         */
         abort_unless(
             strtolower(trim((string) $request->user()?->role)) === 'employer',
             403,
@@ -32,12 +28,8 @@ class JobPostController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        /*
-         * Prevent job seekers and other account types
-         * from submitting new job postings.
-         */
         abort_unless(
-            $request->user()?->role === 'employer',
+            strtolower(trim((string) $request->user()?->role)) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
@@ -179,5 +171,23 @@ class JobPostController extends Controller
                 'success',
                 'The job posting has been created successfully.'
             );
+    }
+
+    /**
+     * Display the edit page for an existing job posting.
+     */
+    public function edit(
+        Request $request,
+        JobPost $jobPost
+    ): View {
+        abort_unless(
+            strtolower(trim((string) $request->user()?->role)) === 'employer',
+            403,
+            'Only employer accounts can edit job postings.'
+        );
+
+        return view('jobs.edit', [
+            'jobPost' => $jobPost,
+        ]);
     }
 }
