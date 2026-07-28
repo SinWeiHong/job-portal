@@ -19,7 +19,7 @@ class JobPostController extends Controller
          * the create job posting page.
          */
         abort_unless(
-            $request->user()?->role === 'employer',
+            strtolower(trim((string) $request->user()?->role)) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
