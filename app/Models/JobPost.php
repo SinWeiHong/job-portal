@@ -2,32 +2,58 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[Fillable([
+    'employer_id',
+    'title',
+    'description',
+    'requirements',
+    'location',
+    'employment_type',
+    'salary_min',
+    'salary_max',
+    'application_deadline',
+    'status',
+    'removal_reason',
+    'removed_by',
+    'removed_at',
+])]
 class JobPost extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
-     * Fields that may be stored through mass assignment.
+     * Get the employer who created this job posting.
      */
-    protected $fillable = [
-        'employer_id',
-        'title',
-        'description',
-        'requirements',
-        'location',
-        'employment_type',
-        'salary_min',
-        'salary_max',
-        'application_deadline',
-        'status',
-    ];
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'employer_id'
+        );
+    }
 
     /**
-     * Convert selected database values into suitable data types.
+     * Get the administrator who removed
+     * this job posting.
+     */
+    public function removedBy(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'removed_by'
+        );
+    }
+
+    /**
+     * Convert database values into suitable data types.
+     *
+     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -35,14 +61,7 @@ class JobPost extends Model
             'salary_min' => 'decimal:2',
             'salary_max' => 'decimal:2',
             'application_deadline' => 'date',
+            'removed_at' => 'datetime',
         ];
-    }
-
-    /**
-     * A job posting belongs to one employer.
-     */
-    public function employer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'employer_id');
     }
 }
