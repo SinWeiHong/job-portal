@@ -27,7 +27,7 @@
 
         .page-container {
             width: 100%;
-            max-width: 760px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -52,88 +52,197 @@
             line-height: 1.5;
         }
 
-        .job-card {
-            padding: 30px;
+        .job-reference {
+            margin-top: 10px;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .job-reference strong {
+            color: #111827;
+        }
+
+        .form-card {
+            padding: 32px;
             background: #ffffff;
             border-radius: 14px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         }
 
-        .job-card h2 {
-            margin-bottom: 22px;
+        .section-title {
+            margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 1px solid #e5e7eb;
-            font-size: 22px;
-        }
-
-        .detail-row {
-            display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 18px;
-            padding: 13px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .detail-label {
-            color: #6b7280;
-            font-weight: bold;
-        }
-
-        .detail-value {
-            overflow-wrap: anywhere;
-            line-height: 1.5;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 11px;
-            border-radius: 999px;
-            background: #dbeafe;
-            color: #1e40af;
-            font-size: 13px;
-            font-weight: bold;
-            text-transform: capitalize;
+            font-size: 20px;
         }
 
         .development-note {
-            margin-top: 24px;
-            padding: 16px;
+            margin-bottom: 22px;
+            padding: 14px 16px;
             border: 1px solid #bfdbfe;
-            border-radius: 9px;
+            border-radius: 8px;
             background: #eff6ff;
             color: #1e40af;
+            font-size: 14px;
             line-height: 1.6;
         }
 
-        .actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 24px;
+        .error-summary {
+            margin-bottom: 20px;
+            padding: 13px 15px;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            line-height: 1.5;
         }
 
-        .back-button {
-            display: inline-block;
-            padding: 11px 20px;
+        .error-summary ul {
+            margin-top: 8px;
+            padding-left: 22px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             background: #ffffff;
-            color: #374151;
-            font-weight: bold;
-            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            outline: none;
         }
 
-        .back-button:hover {
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .input-error {
+            border-color: #dc2626;
+        }
+
+        .input-error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .field-help {
+            display: block;
+            margin-top: 6px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .salary-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+        }
+
+        .cancel-button:hover {
             background: #f9fafb;
         }
 
-        @media (max-width: 600px) {
-            .job-card {
+        .update-button {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .update-button:hover {
+            background: #1d4ed8;
+        }
+
+        .update-button:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid,
+            .salary-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
                 padding: 24px 20px;
             }
 
-            .detail-row {
-                grid-template-columns: 1fr;
-                gap: 6px;
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .button {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -149,116 +258,388 @@
             <h1>Edit Job Posting</h1>
 
             <p class="subtitle">
-                Review the current job posting information before editing.
+                Review and edit the existing job posting information.
+            </p>
+
+            <p class="job-reference">
+                Job ID:
+                <strong>{{ $jobPost->id }}</strong>
             </p>
         </header>
 
-        <section class="job-card">
-            <h2>Current Job Information</h2>
-
-            <div class="detail-row">
-                <div class="detail-label">Job ID</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->id }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Job Title</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->title }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Location</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->location }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Employment Type</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->employment_type }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Minimum Salary</div>
-
-                <div class="detail-value">
-                    @if ($jobPost->salary_min !== null)
-                        RM {{ number_format((float) $jobPost->salary_min, 2) }}
-                    @else
-                        Not specified
-                    @endif
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Maximum Salary</div>
-
-                <div class="detail-value">
-                    @if ($jobPost->salary_max !== null)
-                        RM {{ number_format((float) $jobPost->salary_max, 2) }}
-                    @else
-                        Not specified
-                    @endif
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Application Deadline</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->application_deadline?->format('d M Y') }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Status</div>
-
-                <div class="detail-value">
-                    <span class="status-badge">
-                        {{ $jobPost->status }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Job Description</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->description }}
-                </div>
-            </div>
-
-            <div class="detail-row">
-                <div class="detail-label">Requirements</div>
-
-                <div class="detail-value">
-                    {{ $jobPost->requirements ?: 'Not specified' }}
-                </div>
-            </div>
+        <section class="form-card">
+            <h2 class="section-title">
+                Job Information
+            </h2>
 
             <div class="development-note">
-                The complete prefilled edit form will be implemented
-                in JPW-8 Week 1 Commit 2.
+                The existing job information has been loaded into the
+                form. Database updating and server-side validation will
+                be implemented in JPW-8 Week 2 Commit 1.
             </div>
 
-            <div class="actions">
-                <a
-                    href="{{ route('dashboard') }}"
-                    class="back-button"
-                >
-                    Back to Dashboard
-                </a>
-            </div>
+            @if ($errors->any())
+                <div class="error-summary" role="alert">
+                    <strong>
+                        Please correct the following information:
+                    </strong>
+
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            {{--
+                The update route and PUT method will be added
+                in JPW-8 Week 2 Commit 1.
+            --}}
+            <form
+                method="POST"
+                action="#"
+                novalidate
+            >
+                @csrf
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="title">
+                            Job Title
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value="{{ old('title', $jobPost->title) }}"
+                            maxlength="150"
+                            placeholder="Example: Junior Software Developer"
+                            class="@error('title') input-error @enderror"
+                            required
+                        >
+
+                        @error('title')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">
+                            Job Location
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            value="{{ old('location', $jobPost->location) }}"
+                            maxlength="150"
+                            placeholder="Example: Kuala Lumpur"
+                            class="@error('location') input-error @enderror"
+                            required
+                        >
+
+                        @error('location')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="employment_type">
+                            Employment Type
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            id="employment_type"
+                            name="employment_type"
+                            class="@error('employment_type') input-error @enderror"
+                            required
+                        >
+                            <option value="">
+                                Select employment type
+                            </option>
+
+                            <option
+                                value="Full-time"
+                                @selected(
+                                    old(
+                                        'employment_type',
+                                        $jobPost->employment_type
+                                    ) === 'Full-time'
+                                )
+                            >
+                                Full-time
+                            </option>
+
+                            <option
+                                value="Part-time"
+                                @selected(
+                                    old(
+                                        'employment_type',
+                                        $jobPost->employment_type
+                                    ) === 'Part-time'
+                                )
+                            >
+                                Part-time
+                            </option>
+
+                            <option
+                                value="Contract"
+                                @selected(
+                                    old(
+                                        'employment_type',
+                                        $jobPost->employment_type
+                                    ) === 'Contract'
+                                )
+                            >
+                                Contract
+                            </option>
+
+                            <option
+                                value="Internship"
+                                @selected(
+                                    old(
+                                        'employment_type',
+                                        $jobPost->employment_type
+                                    ) === 'Internship'
+                                )
+                            >
+                                Internship
+                            </option>
+
+                            <option
+                                value="Temporary"
+                                @selected(
+                                    old(
+                                        'employment_type',
+                                        $jobPost->employment_type
+                                    ) === 'Temporary'
+                                )
+                            >
+                                Temporary
+                            </option>
+                        </select>
+
+                        @error('employment_type')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>
+                            Monthly Salary Range (RM)
+                        </label>
+
+                        <div class="salary-fields">
+                            <div>
+                                <input
+                                    type="number"
+                                    id="salary_min"
+                                    name="salary_min"
+                                    value="{{ old(
+                                        'salary_min',
+                                        $jobPost->salary_min
+                                    ) }}"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Minimum salary"
+                                    class="@error('salary_min') input-error @enderror"
+                                >
+
+                                @error('salary_min')
+                                    <span class="error-message">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <input
+                                    type="number"
+                                    id="salary_max"
+                                    name="salary_max"
+                                    value="{{ old(
+                                        'salary_max',
+                                        $jobPost->salary_max
+                                    ) }}"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Maximum salary"
+                                    class="@error('salary_max') input-error @enderror"
+                                >
+
+                                @error('salary_max')
+                                    <span class="error-message">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <span class="field-help">
+                            Leave both fields empty when salary is
+                            negotiable or confidential.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="application_deadline">
+                            Application Deadline
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="date"
+                            id="application_deadline"
+                            name="application_deadline"
+                            value="{{ old(
+                                'application_deadline',
+                                $jobPost->application_deadline
+                                    ? \Illuminate\Support\Carbon::parse(
+                                        $jobPost->application_deadline
+                                    )->format('Y-m-d')
+                                    : ''
+                            ) }}"
+                            class="@error('application_deadline') input-error @enderror"
+                            required
+                        >
+
+                        @error('application_deadline')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+
+                        <span class="field-help">
+                            Select the final date for accepting
+                            job applications.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">
+                            Posting Status
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            id="status"
+                            name="status"
+                            class="@error('status') input-error @enderror"
+                            required
+                        >
+                            <option
+                                value="open"
+                                @selected(
+                                    old(
+                                        'status',
+                                        $jobPost->status
+                                    ) === 'open'
+                                )
+                            >
+                                Open
+                            </option>
+
+                            <option
+                                value="draft"
+                                @selected(
+                                    old(
+                                        'status',
+                                        $jobPost->status
+                                    ) === 'draft'
+                                )
+                            >
+                                Draft
+                            </option>
+                        </select>
+
+                        @error('status')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="description">
+                            Job Description
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            maxlength="5000"
+                            placeholder="Describe the responsibilities, duties and working conditions."
+                            class="@error('description') input-error @enderror"
+                            required
+                        >{{ old(
+                            'description',
+                            $jobPost->description
+                        ) }}</textarea>
+
+                        @error('description')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="requirements">
+                            Job Requirements
+                        </label>
+
+                        <textarea
+                            id="requirements"
+                            name="requirements"
+                            maxlength="5000"
+                            placeholder="Enter the required qualifications, skills and experience."
+                            class="@error('requirements') input-error @enderror"
+                        >{{ old(
+                            'requirements',
+                            $jobPost->requirements
+                        ) }}</textarea>
+
+                        @error('requirements')
+                            <span class="error-message">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a
+                        href="{{ route('dashboard') }}"
+                        class="button cancel-button"
+                    >
+                        Cancel
+                    </a>
+
+                    {{--
+                        type="button" prevents accidental database
+                        submission before the update function exists.
+                    --}}
+                    <button
+                        type="button"
+                        class="button update-button"
+                    >
+                        Update Job Posting
+                    </button>
+                </div>
+            </form>
         </section>
     </main>
 </body>
