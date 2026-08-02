@@ -113,16 +113,6 @@
             text-transform: capitalize;
         }
 
-        .alert-info {
-            margin-bottom: 20px;
-            padding: 13px 15px;
-            border: 1px solid #93c5fd;
-            border-radius: 8px;
-            background: #eff6ff;
-            color: #1e40af;
-            line-height: 1.5;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
@@ -229,6 +219,48 @@
                 text-align: center;
             }
         }
+
+        .alert-success {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #166534;
+    line-height: 1.5;
+}
+
+.error-summary {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+    line-height: 1.5;
+}
+
+.error-summary ul {
+    margin-top: 8px;
+    padding-left: 22px;
+}
+
+.input-error {
+    border-color: #dc2626;
+}
+
+.input-error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.error-message {
+    display: block;
+    margin-top: 7px;
+    color: #dc2626;
+    font-size: 13px;
+    line-height: 1.5;
+}
     </style>
 </head>
 
@@ -341,11 +373,25 @@
                 Application Form
             </h2>
 
-            @if (session('info'))
-                <div class="alert-info" role="alert">
-                    {{ session('info') }}
-                </div>
-            @endif
+            @if (session('success'))
+    <div class="alert-success" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="error-summary" role="alert">
+        <strong>
+            Please correct the following information:
+        </strong>
+
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
             @if (
                 strtolower((string) $jobPost->status) === 'open'
@@ -362,11 +408,19 @@
                         </label>
 
                         <textarea
-                            id="cover_letter"
-                            name="cover_letter"
-                            maxlength="5000"
-                            placeholder="Introduce yourself and explain why you are suitable for this job."
-                        >{{ old('cover_letter') }}</textarea>
+    id="cover_letter"
+    name="cover_letter"
+    maxlength="5000"
+    placeholder="Introduce yourself and explain why you are suitable for this job."
+    class="@error('cover_letter') input-error @enderror"
+    required
+>{{ old('cover_letter') }}</textarea>
+
+@error('cover_letter')
+    <span class="error-message">
+        {{ $message }}
+    </span>
+@enderror
 
                         <span class="field-help">
                             You may include your relevant skills, experience

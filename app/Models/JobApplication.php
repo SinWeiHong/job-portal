@@ -18,7 +18,7 @@ class JobApplication extends Model
     use HasFactory;
 
     /**
-     * Get the related job posting.
+     * Get the job posting associated with this application.
      */
     public function jobPost(): BelongsTo
     {
@@ -29,7 +29,7 @@ class JobApplication extends Model
     }
 
     /**
-     * Get the job seeker who submitted the application.
+     * Get the job seeker who submitted this application.
      */
     public function jobSeeker(): BelongsTo
     {
