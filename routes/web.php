@@ -97,4 +97,9 @@ Route::middleware('auth')->group(function () {
         '/employer/jobs/{jobPost}/edit',
         [JobPostController::class, 'edit']
     )->name('jobs.edit');
+
+    Route::put(
+    '/employer/jobs/{jobPost}',
+    [JobPostController::class, 'update']
+)->name('jobs.update');
 });

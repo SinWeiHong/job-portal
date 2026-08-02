@@ -76,16 +76,6 @@
             font-size: 20px;
         }
 
-        .development-note {
-            margin-bottom: 22px;
-            padding: 14px 16px;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            background: #eff6ff;
-            color: #1e40af;
-            font-size: 14px;
-            line-height: 1.6;
-        }
 
         .error-summary {
             margin-bottom: 20px;
@@ -245,6 +235,16 @@
                 text-align: center;
             }
         }
+
+        .alert-success {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #166534;
+    line-height: 1.5;
+}
     </style>
 </head>
 
@@ -272,11 +272,13 @@
                 Job Information
             </h2>
 
-            <div class="development-note">
-                The existing job information has been loaded into the
-                form. Database updating and server-side validation will
-                be implemented in JPW-8 Week 2 Commit 1.
-            </div>
+            @if (session('success'))
+    <div class="alert-success" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
+
+           
 
             @if ($errors->any())
                 <div class="error-summary" role="alert">
@@ -296,12 +298,13 @@
                 The update route and PUT method will be added
                 in JPW-8 Week 2 Commit 1.
             --}}
-            <form
-                method="POST"
-                action="#"
-                novalidate
-            >
-                @csrf
+           <form
+    method="POST"
+    action="{{ route('jobs.update', $jobPost) }}"
+    novalidate
+>
+    @csrf
+    @method('PUT')
 
                 <div class="form-grid">
                     <div class="form-group full-width">
@@ -487,6 +490,12 @@
                             </div>
                         </div>
 
+                        @error('salary_range')
+    <span class="error-message">
+        {{ $message }}
+    </span>
+@enderror
+
                         <span class="field-help">
                             Leave both fields empty when salary is
                             negotiable or confidential.
@@ -633,11 +642,11 @@
                         submission before the update function exists.
                     --}}
                     <button
-                        type="button"
-                        class="button update-button"
-                    >
-                        Update Job Posting
-                    </button>
+    type="submit"
+    class="button update-button"
+>
+    Update Job Posting
+</button>
                 </div>
             </form>
         </section>
