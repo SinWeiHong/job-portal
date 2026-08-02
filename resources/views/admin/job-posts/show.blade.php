@@ -136,10 +136,13 @@
         }
 
         .remove-button {
-            background: #e5e7eb;
-            color: #9ca3af;
-            cursor: not-allowed;
-        }
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.remove-button:hover {
+    background: #b91c1c;
+}
 
         @media (max-width: 650px) {
             .review-card {
@@ -298,10 +301,7 @@
                 </div>
             </div>
 
-            <div class="development-note">
-                The removal reason form and soft-delete operation
-                will be implemented in JPW-13 Week 2 Commit 1.
-            </div>
+         
 
             <div class="actions">
                 <a
@@ -310,14 +310,15 @@
                 >
                     Back to Moderation List
                 </a>
-
-                <button
-                    type="button"
-                    class="button remove-button"
-                    disabled
-                >
-                    Remove Job Posting
-                </button>
+<a
+    href="{{ route(
+        'admin.job-posts.remove',
+        $jobPost
+    ) }}"
+    class="button remove-button"
+>
+    Remove Job Posting
+</a>
             </div>
         </section>
     </main>

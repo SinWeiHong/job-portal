@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
         [LoginController::class, 'destroy']
     )->name('logout');
 
-    /*
+/*
 |--------------------------------------------------------------------------
 | Administrator Job Moderation Routes — JPW-13
 |--------------------------------------------------------------------------
@@ -78,6 +78,16 @@ Route::get(
     '/admin/job-postings',
     [AdminJobPostController::class, 'index']
 )->name('admin.job-posts.index');
+
+Route::get(
+    '/admin/job-postings/{jobPost}/remove',
+    [AdminJobPostController::class, 'remove']
+)->name('admin.job-posts.remove');
+
+Route::delete(
+    '/admin/job-postings/{jobPost}',
+    [AdminJobPostController::class, 'destroy']
+)->name('admin.job-posts.destroy');
 
 Route::get(
     '/admin/job-postings/{jobPost}',

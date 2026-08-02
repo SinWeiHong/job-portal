@@ -204,10 +204,13 @@
         }
 
         .remove-button {
-            background: #e5e7eb;
-            color: #9ca3af;
-            cursor: not-allowed;
-        }
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.remove-button:hover {
+    background: #b91c1c;
+}
 
         .empty-state {
             padding: 50px 24px;
@@ -235,6 +238,17 @@
                 text-align: center;
             }
         }
+
+        .alert-success {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    border: 1px solid #86efac;
+    border-radius: 9px;
+    background: #f0fdf4;
+    color: #166534;
+    line-height: 1.6;
+}
+
     </style>
 </head>
 
@@ -260,13 +274,17 @@
                 Review active job postings and identify content that may
                 be inappropriate, misleading or unreliable.
             </p>
+
+            
         </header>
 
-        <div class="development-note">
-            Job posting review is available in this development commit.
-            The removal reason and soft-delete action will be implemented
-            in JPW-13 Week 2 Commit 1.
-        </div>
+        @if (session('success'))
+    <div class="alert-success" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
+
+       
 
         <section class="summary-card">
             <span class="summary-label">
@@ -358,14 +376,15 @@
                                                 Review
                                             </a>
 
-                                            <button
-                                                type="button"
-                                                class="button remove-button"
-                                                disabled
-                                                title="Removal will be implemented in the next development commit."
-                                            >
-                                                Remove
-                                            </button>
+                                           <a
+    href="{{ route(
+        'admin.job-posts.remove',
+        $jobPost
+    ) }}"
+    class="button remove-button"
+>
+    Remove
+</a>
                                         </div>
                                     </td>
                                 </tr>
