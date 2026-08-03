@@ -87,7 +87,9 @@ Route::get(
 Route::delete(
     '/admin/job-postings/{jobPost}',
     [AdminJobPostController::class, 'destroy']
-)->name('admin.job-posts.destroy');
+)
+    ->withTrashed()
+    ->name('admin.job-posts.destroy');
 
 Route::get(
     '/admin/job-postings/{jobPost}',

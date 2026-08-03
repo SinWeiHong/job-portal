@@ -249,6 +249,16 @@
     line-height: 1.6;
 }
 
+.alert-error {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    border: 1px solid #fca5a5;
+    border-radius: 9px;
+    background: #fef2f2;
+    color: #991b1b;
+    line-height: 1.6;
+}
+
     </style>
 </head>
 
@@ -281,6 +291,12 @@
         @if (session('success'))
     <div class="alert-success" role="alert">
         {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert-error" role="alert">
+        {{ session('error') }}
     </div>
 @endif
 

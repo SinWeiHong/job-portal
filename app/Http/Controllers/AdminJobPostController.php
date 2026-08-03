@@ -13,8 +13,10 @@ class AdminJobPostController extends Controller
     /**
      * Display all active job postings for moderation.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $this->ensureAdministrator($request);
+
         $jobPosts = JobPost::query()
             ->with([
                 'employer:id,name,email',
@@ -30,8 +32,12 @@ class AdminJobPostController extends Controller
     /**
      * Display one job posting for administrative review.
      */
-    public function show(JobPost $jobPost): View
-    {
+    public function show(
+        Request $request,
+        JobPost $jobPost
+    ): View {
+        $this->ensureAdministrator($request);
+
         $jobPost->load([
             'employer:id,name,email',
         ]);
@@ -44,8 +50,12 @@ class AdminJobPostController extends Controller
     /**
      * Display the removal confirmation form.
      */
-    public function remove(JobPost $jobPost): View
-    {
+    public function remove(
+        Request $request,
+        JobPost $jobPost
+    ): View {
+        $this->ensureAdministrator($request);
+
         $jobPost->load([
             'employer:id,name,email',
         ]);
@@ -63,6 +73,29 @@ class AdminJobPostController extends Controller
         Request $request,
         JobPost $jobPost
     ): RedirectResponse {
+        /*
+        |--------------------------------------------------------------------------
+        | Administrator Authorization
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureAdministrator($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Already Removed Validation
+        |--------------------------------------------------------------------------
+        */
+
+        if ($jobPost->trashed()) {
+            return redirect()
+                ->route('admin.job-posts.index')
+                ->with(
+                    'error',
+                    'This job posting has already been removed.'
+                );
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Removal Reason Validation
@@ -116,9 +149,8 @@ class AdminJobPostController extends Controller
             ]);
 
             /*
-             * Because JobPost uses SoftDeletes, delete()
-             * records deleted_at instead of permanently
-             * deleting the database record.
+             * SoftDeletes records the deleted_at value
+             * instead of permanently deleting the record.
              */
             $jobPost->delete();
         });
@@ -129,5 +161,23 @@ class AdminJobPostController extends Controller
                 'success',
                 'The job posting has been removed successfully.'
             );
+    }
+
+    /**
+     * Confirm that the logged-in user is an administrator.
+     */
+    private function ensureAdministrator(
+        Request $request
+    ): void {
+        $user = $request->user();
+
+        abort_unless(
+            $user !== null &&
+            strtolower(
+                trim((string) $user->role)
+            ) === 'administrator',
+            403,
+            'Only administrators can manage job postings.'
+        );
     }
 }
