@@ -58,7 +58,7 @@ Route::post(
 Route::middleware('auth')->group(function () {
     /*
     |--------------------------------------------------------------------------
-    | Dashboard
+    | Dashboard and Logout
     |--------------------------------------------------------------------------
     */
 
@@ -66,12 +66,6 @@ Route::middleware('auth')->group(function () {
         '/dashboard',
         [DashboardController::class, 'index']
     )->name('dashboard');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logout
-    |--------------------------------------------------------------------------
-    */
 
     Route::post(
         '/logout',
@@ -93,6 +87,22 @@ Route::middleware('auth')->group(function () {
         '/employer/jobs',
         [JobPostController::class, 'store']
     )->name('jobs.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Edit Job Posting — JPW-8
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/employer/jobs/{jobPost}/edit',
+        [JobPostController::class, 'edit']
+    )->name('jobs.edit');
+
+    Route::put(
+        '/employer/jobs/{jobPost}',
+        [JobPostController::class, 'update']
+    )->name('jobs.update');
 
     /*
     |--------------------------------------------------------------------------

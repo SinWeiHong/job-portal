@@ -14,12 +14,10 @@ class JobPostController extends Controller
      */
     public function create(Request $request): View
     {
-        /*
-         * Only authenticated employer accounts may access
-         * the create job posting page.
-         */
         abort_unless(
-            strtolower(trim((string) $request->user()?->role)) === 'employer',
+            strtolower(
+                trim((string) $request->user()?->role)
+            ) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
@@ -32,12 +30,10 @@ class JobPostController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        /*
-         * Prevent job seekers and other account types
-         * from submitting new job postings.
-         */
         abort_unless(
-            $request->user()?->role === 'employer',
+            strtolower(
+                trim((string) $request->user()?->role)
+            ) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
@@ -103,11 +99,17 @@ class JobPostController extends Controller
                 'title.required' =>
                     'Please enter the job title.',
 
+                'title.string' =>
+                    'The job title must be valid text.',
+
                 'title.max' =>
                     'The job title must not exceed 150 characters.',
 
                 'location.required' =>
                     'Please enter the job location.',
+
+                'location.string' =>
+                    'The job location must be valid text.',
 
                 'location.max' =>
                     'The job location must not exceed 150 characters.',
@@ -151,8 +153,14 @@ class JobPostController extends Controller
                 'description.required' =>
                     'Please enter the job description.',
 
+                'description.string' =>
+                    'The job description must be valid text.',
+
                 'description.max' =>
                     'The job description must not exceed 5000 characters.',
+
+                'requirements.string' =>
+                    'The job requirements must be valid text.',
 
                 'requirements.max' =>
                     'The job requirements must not exceed 5000 characters.',
@@ -161,10 +169,12 @@ class JobPostController extends Controller
 
         JobPost::create([
             'employer_id' => $request->user()->id,
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'requirements' => $validated['requirements'] ?? null,
-            'location' => $validated['location'],
+            'title' => trim($validated['title']),
+            'description' => trim($validated['description']),
+            'requirements' => isset($validated['requirements'])
+                ? trim($validated['requirements'])
+                : null,
+            'location' => trim($validated['location']),
             'employment_type' => $validated['employment_type'],
             'salary_min' => $validated['salary_min'] ?? null,
             'salary_max' => $validated['salary_max'] ?? null,
@@ -179,5 +189,277 @@ class JobPostController extends Controller
                 'success',
                 'The job posting has been created successfully.'
             );
+    }
+
+    /**
+     * Display the edit page for an existing job posting.
+     */
+    public function edit(
+        Request $request,
+        JobPost $jobPost
+    ): View {
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Role and Ownership Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureEmployerOwnsJob(
+            $request,
+            $jobPost
+        );
+
+        return view('jobs.edit', [
+            'jobPost' => $jobPost,
+        ]);
+    }
+
+    /**
+     * Validate and update an existing job posting.
+     */
+    public function update(
+        Request $request,
+        JobPost $jobPost
+    ): RedirectResponse {
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Role and Ownership Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureEmployerOwnsJob(
+            $request,
+            $jobPost
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Posting Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate(
+            [
+                'title' => [
+                    'required',
+                    'string',
+                    'max:150',
+                ],
+
+                'location' => [
+                    'required',
+                    'string',
+                    'max:150',
+                ],
+
+                'employment_type' => [
+                    'required',
+                    'string',
+                    'in:Full-time,Part-time,Contract,Internship,Temporary',
+                ],
+
+                'salary_min' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                ],
+
+                'salary_max' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                    'gte:salary_min',
+                ],
+
+                'application_deadline' => [
+                    'required',
+                    'date',
+                    'after_or_equal:today',
+                ],
+
+                'status' => [
+                    'required',
+                    'string',
+                    'in:open,draft',
+                ],
+
+                'description' => [
+                    'required',
+                    'string',
+                    'max:5000',
+                ],
+
+                'requirements' => [
+                    'nullable',
+                    'string',
+                    'max:5000',
+                ],
+            ],
+            [
+                'title.required' =>
+                    'Please enter the job title.',
+
+                'title.string' =>
+                    'The job title must be valid text.',
+
+                'title.max' =>
+                    'The job title must not exceed 150 characters.',
+
+                'location.required' =>
+                    'Please enter the job location.',
+
+                'location.string' =>
+                    'The job location must be valid text.',
+
+                'location.max' =>
+                    'The job location must not exceed 150 characters.',
+
+                'employment_type.required' =>
+                    'Please select an employment type.',
+
+                'employment_type.in' =>
+                    'Please select a valid employment type.',
+
+                'salary_min.numeric' =>
+                    'The minimum salary must be a valid number.',
+
+                'salary_min.min' =>
+                    'The minimum salary cannot be negative.',
+
+                'salary_max.numeric' =>
+                    'The maximum salary must be a valid number.',
+
+                'salary_max.min' =>
+                    'The maximum salary cannot be negative.',
+
+                'salary_max.gte' =>
+                    'The maximum salary must be equal to or greater than the minimum salary.',
+
+                'application_deadline.required' =>
+                    'Please select an application deadline.',
+
+                'application_deadline.date' =>
+                    'Please enter a valid application deadline.',
+
+                'application_deadline.after_or_equal' =>
+                    'The application deadline cannot be earlier than today.',
+
+                'status.required' =>
+                    'Please select the job posting status.',
+
+                'status.in' =>
+                    'Please select a valid job posting status.',
+
+                'description.required' =>
+                    'Please enter the job description.',
+
+                'description.string' =>
+                    'The job description must be valid text.',
+
+                'description.max' =>
+                    'The job description must not exceed 5000 characters.',
+
+                'requirements.string' =>
+                    'The job requirements must be valid text.',
+
+                'requirements.max' =>
+                    'The job requirements must not exceed 5000 characters.',
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | RM0 to RM0 Salary Range Validation
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            array_key_exists('salary_min', $validated) &&
+            array_key_exists('salary_max', $validated) &&
+            $validated['salary_min'] !== null &&
+            $validated['salary_max'] !== null &&
+            (float) $validated['salary_min'] === 0.0 &&
+            (float) $validated['salary_max'] === 0.0
+        ) {
+            return back()
+                ->withErrors([
+                    'salary_range' =>
+                        'The salary range cannot be RM0 to RM0.',
+                ])
+                ->withInput();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Job Posting
+        |--------------------------------------------------------------------------
+        */
+
+        $jobPost->update([
+            'title' => trim($validated['title']),
+            'location' => trim($validated['location']),
+            'employment_type' =>
+                $validated['employment_type'],
+            'salary_min' =>
+                $validated['salary_min'] ?? null,
+            'salary_max' =>
+                $validated['salary_max'] ?? null,
+            'application_deadline' =>
+                $validated['application_deadline'],
+            'status' =>
+                $validated['status'],
+            'description' =>
+                trim($validated['description']),
+            'requirements' =>
+                isset($validated['requirements'])
+                    ? trim($validated['requirements'])
+                    : null,
+        ]);
+
+        return redirect()
+            ->route('jobs.edit', $jobPost)
+            ->with(
+                'success',
+                'The job posting has been updated successfully.'
+            );
+    }
+
+    /**
+     * Confirm that the logged-in user is an employer
+     * and owns the selected job posting.
+     */
+    private function ensureEmployerOwnsJob(
+        Request $request,
+        JobPost $jobPost
+    ): void {
+        $user = $request->user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Role Validation
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            $user !== null &&
+            strtolower(
+                trim((string) $user->role)
+            ) === 'employer',
+            403,
+            'Only employer accounts can edit job postings.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Ownership Validation
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            (int) $jobPost->employer_id ===
+                (int) $user->id,
+            403,
+            'You can only edit your own job postings.'
+        );
     }
 }
