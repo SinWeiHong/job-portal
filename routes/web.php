@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\JobApplicationController;
-use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------

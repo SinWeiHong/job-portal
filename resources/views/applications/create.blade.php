@@ -393,9 +393,7 @@
     </div>
 @endif
 
-            @if (
-                strtolower((string) $jobPost->status) === 'open'
-            )
+            @if ($canApply)
                 <form
                     method="POST"
                     action="{{ route('applications.store', $jobPost) }}"
@@ -444,12 +442,11 @@
                         </button>
                     </div>
                 </form>
-            @else
-                <div class="closed-message">
-                    Applications are not currently available because this
-                    job posting is not open.
-                </div>
-            @endif
+           @else
+    <div class="closed-message">
+        {{ $applicationUnavailableMessage }}
+    </div>
+@endif
         </section>
     </main>
 </body>
