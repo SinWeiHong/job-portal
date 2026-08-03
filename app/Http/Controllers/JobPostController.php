@@ -15,7 +15,9 @@ class JobPostController extends Controller
     public function create(Request $request): View
     {
         abort_unless(
-            strtolower(trim((string) $request->user()?->role)) === 'employer',
+            strtolower(
+                trim((string) $request->user()?->role)
+            ) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
@@ -29,7 +31,9 @@ class JobPostController extends Controller
     public function store(Request $request): RedirectResponse
     {
         abort_unless(
-            strtolower(trim((string) $request->user()?->role)) === 'employer',
+            strtolower(
+                trim((string) $request->user()?->role)
+            ) === 'employer',
             403,
             'Only employer accounts can create job postings.'
         );
@@ -165,10 +169,12 @@ class JobPostController extends Controller
 
         JobPost::create([
             'employer_id' => $request->user()->id,
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'requirements' => $validated['requirements'] ?? null,
-            'location' => $validated['location'],
+            'title' => trim($validated['title']),
+            'description' => trim($validated['description']),
+            'requirements' => isset($validated['requirements'])
+                ? trim($validated['requirements'])
+                : null,
+            'location' => trim($validated['location']),
             'employment_type' => $validated['employment_type'],
             'salary_min' => $validated['salary_min'] ?? null,
             'salary_max' => $validated['salary_max'] ?? null,
@@ -192,10 +198,15 @@ class JobPostController extends Controller
         Request $request,
         JobPost $jobPost
     ): View {
-        abort_unless(
-            strtolower(trim((string) $request->user()?->role)) === 'employer',
-            403,
-            'Only employer accounts can edit job postings.'
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Role and Ownership Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureEmployerOwnsJob(
+            $request,
+            $jobPost
         );
 
         return view('jobs.edit', [
@@ -212,14 +223,13 @@ class JobPostController extends Controller
     ): RedirectResponse {
         /*
         |--------------------------------------------------------------------------
-        | Employer Role Validation
+        | Employer Role and Ownership Validation
         |--------------------------------------------------------------------------
         */
 
-        abort_unless(
-            strtolower(trim((string) $request->user()?->role)) === 'employer',
-            403,
-            'Only employer accounts can edit job postings.'
+        $this->ensureEmployerOwnsJob(
+            $request,
+            $jobPost
         );
 
         /*
@@ -386,16 +396,24 @@ class JobPostController extends Controller
         */
 
         $jobPost->update([
-            'title' => $validated['title'],
-            'location' => $validated['location'],
-            'employment_type' => $validated['employment_type'],
-            'salary_min' => $validated['salary_min'] ?? null,
-            'salary_max' => $validated['salary_max'] ?? null,
+            'title' => trim($validated['title']),
+            'location' => trim($validated['location']),
+            'employment_type' =>
+                $validated['employment_type'],
+            'salary_min' =>
+                $validated['salary_min'] ?? null,
+            'salary_max' =>
+                $validated['salary_max'] ?? null,
             'application_deadline' =>
                 $validated['application_deadline'],
-            'status' => $validated['status'],
-            'description' => $validated['description'],
-            'requirements' => $validated['requirements'] ?? null,
+            'status' =>
+                $validated['status'],
+            'description' =>
+                trim($validated['description']),
+            'requirements' =>
+                isset($validated['requirements'])
+                    ? trim($validated['requirements'])
+                    : null,
         ]);
 
         return redirect()
@@ -404,5 +422,44 @@ class JobPostController extends Controller
                 'success',
                 'The job posting has been updated successfully.'
             );
+    }
+
+    /**
+     * Confirm that the logged-in user is an employer
+     * and owns the selected job posting.
+     */
+    private function ensureEmployerOwnsJob(
+        Request $request,
+        JobPost $jobPost
+    ): void {
+        $user = $request->user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Role Validation
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            $user !== null &&
+            strtolower(
+                trim((string) $user->role)
+            ) === 'employer',
+            403,
+            'Only employer accounts can edit job postings.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Ownership Validation
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            (int) $jobPost->employer_id ===
+                (int) $user->id,
+            403,
+            'You can only edit your own job postings.'
+        );
     }
 }
