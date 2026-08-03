@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AdminJobPostController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobPostController;
 use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +74,34 @@ Route::middleware('auth')->group(function () {
         '/logout',
         [LoginController::class, 'destroy']
     )->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Administrator Job Moderation Routes — JPW-13
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/job-postings',
+    [AdminJobPostController::class, 'index']
+)->name('admin.job-posts.index');
+
+Route::get(
+    '/admin/job-postings/{jobPost}/remove',
+    [AdminJobPostController::class, 'remove']
+)->name('admin.job-posts.remove');
+
+Route::delete(
+    '/admin/job-postings/{jobPost}',
+    [AdminJobPostController::class, 'destroy']
+)
+    ->withTrashed()
+    ->name('admin.job-posts.destroy');
+
+Route::get(
+    '/admin/job-postings/{jobPost}',
+    [AdminJobPostController::class, 'show']
+)->name('admin.job-posts.show');
 
     /*
     |--------------------------------------------------------------------------
