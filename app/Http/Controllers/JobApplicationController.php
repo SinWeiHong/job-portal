@@ -207,4 +207,57 @@ class JobApplicationController extends Controller
 
         return null;
     }
+
+
+ /**
+ * Display the job seeker's submitted applications.
+ */
+public function index(Request $request): View
+{
+    $applications = JobApplication::with('jobPost')
+        ->where('job_seeker_id', $request->user()->id)
+        ->latest()
+        ->get();
+
+    return view('applications.index', [
+        'applications' => $applications,
+    ]);
+}
+
+/**
+ * Display applicants for an employer's job posting.
+ */
+public function employerApplicants(
+    Request $request,
+    JobPost $jobPost
+): View {
+    abort_unless(
+        $request->user() !== null,
+        401,
+        'Please log in before viewing applicants.'
+    );
+
+    abort_unless(
+        strtolower(trim((string) $request->user()->role)) === 'employer',
+        403,
+        'Only employers can view applicants.'
+    );
+
+    abort_unless(
+        $jobPost->employer_id === $request->user()->id,
+        403,
+        'You can only view applicants for your own job postings.'
+    );
+
+    $applications = $jobPost->applications()
+        ->with('jobSeeker')
+        ->latest()
+        ->get();
+
+    return view('applications.employer-index', [
+        'jobPost' => $jobPost,
+        'applications' => $applications,
+    ]);
+}
+
 }
