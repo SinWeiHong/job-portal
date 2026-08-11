@@ -207,4 +207,20 @@ class JobApplicationController extends Controller
 
         return null;
     }
+
+    /**
+ * Display the job seeker's submitted applications.
+ */
+public function index(Request $request): View
+{
+    $applications = JobApplication::with('jobPost')
+        ->where('job_seeker_id', $request->user()->id)
+        ->latest()
+        ->get();
+
+    return view('applications.index', [
+        'applications' => $applications,
+    ]);
+}
+
 }
