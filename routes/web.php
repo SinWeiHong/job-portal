@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminJobPostController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
@@ -102,6 +103,19 @@ Route::get(
     '/admin/job-postings/{jobPost}',
     [AdminJobPostController::class, 'show']
 )->name('admin.job-posts.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator User Management Routes — JPW-15
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/admin/users',
+        [AdminUserController::class, 'index']
+    )->name('admin.users.index');
+
+    
 
     /*
     |--------------------------------------------------------------------------
