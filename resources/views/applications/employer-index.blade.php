@@ -12,11 +12,13 @@
             margin: 40px;
         }
 
+        
+
         h1 {
             margin-bottom: 5px;
         }
 
-        .job-title {
+        .job-info {
             color: #666;
             margin-bottom: 30px;
         }
@@ -31,10 +33,15 @@
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
+            vertical-align: top;
         }
 
         th {
             background-color: #f4f4f4;
+        }
+
+        .status {
+            font-weight: bold;
         }
 
         .empty {
@@ -46,10 +53,12 @@
 
 <body>
 
+    
+
     <h1>Applicants</h1>
 
-    <div class="job-title">
-        Job Posting: {{ $jobPost->title }}
+    <div class="job-info">
+        <strong>Job Posting:</strong> {{ $jobPost->title }}
     </div>
 
     @if ($applications->isEmpty())
@@ -83,11 +92,13 @@
                         </td>
 
                         <td>
-                            {{ $application->cover_letter }}
+                            {{ $application->cover_letter ?? 'No cover letter provided.' }}
                         </td>
 
                         <td>
-                            {{ ucfirst($application->status) }}
+                            <span class="status">
+                                {{ ucfirst($application->status) }}
+                            </span>
                         </td>
 
                         <td>
