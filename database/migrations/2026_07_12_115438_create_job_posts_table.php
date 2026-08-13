@@ -13,6 +13,24 @@ return new class extends Migration
     {
         Schema::create('job_posts', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('employer_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            $table->string('title');
+            $table->text('description');
+            $table->text('requirements');
+            $table->string('location');
+            $table->string('employment_type');
+
+            $table->decimal('salary_min', 10, 2)->nullable();
+            $table->decimal('salary_max', 10, 2)->nullable();
+
+            $table->date('application_deadline')->nullable();
+
+            $table->string('status')->default('open');
+
             $table->timestamps();
         });
     }
