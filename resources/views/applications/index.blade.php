@@ -30,6 +30,50 @@
             border-radius: 8px;
             max-width: 700px;
         }
+
+        .filter-form {
+            display: flex;
+            align-items: end;
+            gap: 12px;
+            margin-bottom: 24px;
+            max-width: 700px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field label {
+            font-weight: bold;
+        }
+
+        .filter-field select {
+            min-width: 180px;
+            padding: 8px 10px;
+        }
+
+        .filter-button,
+        .clear-filter {
+            padding: 9px 14px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #fff;
+            color: #111;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-button:hover,
+        .clear-filter:hover {
+            background: #f2f2f2;
+        }
+
+        .filter-summary {
+            margin-bottom: 18px;
+        }
     </style>
 </head>
 
@@ -37,10 +81,58 @@
 
     <h1>My Applications</h1>
 
+    <form
+        method="GET"
+        action="{{ route('applications.index') }}"
+        class="filter-form"
+    >
+        <div class="filter-field">
+            <label for="status">Application Status</label>
+
+            <select id="status" name="status">
+                <option value="">All Applications</option>
+
+                @foreach ($availableStatuses as $status)
+                    <option
+                        value="{{ $status }}"
+                        @selected($selectedStatus === strtolower($status))
+                    >
+                        {{ ucfirst($status) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <button type="submit" class="filter-button">
+            Filter
+        </button>
+
+        @if ($selectedStatus !== '')
+            <a
+                href="{{ route('applications.index') }}"
+                class="clear-filter"
+            >
+                Clear
+            </a>
+        @endif
+    </form>
+
+    @if ($selectedStatus !== '')
+        <p class="filter-summary">
+            Showing {{ ucfirst($selectedStatus) }} applications.
+        </p>
+    @endif
+
     @if ($applications->isEmpty())
 
         <div class="empty-message">
-            <p>You have not submitted any job applications yet.</p>
+            @if ($selectedStatus !== '')
+                <p>
+                    No {{ ucfirst($selectedStatus) }} applications found.
+                </p>
+            @else
+                <p>You have not submitted any job applications yet.</p>
+            @endif
         </div>
 
     @else

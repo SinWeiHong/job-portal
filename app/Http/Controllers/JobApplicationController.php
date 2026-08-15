@@ -209,18 +209,36 @@ class JobApplicationController extends Controller
     }
 
     /**
- * Display the job seeker's submitted applications.
- */
-public function index(Request $request): View
-{
-    $applications = JobApplication::with('jobPost')
-        ->where('job_seeker_id', $request->user()->id)
-        ->latest()
-        ->get();
+     * Display the job seeker's submitted applications.
+     */
+    public function index(Request $request): View
+    {
+        $selectedStatus = strtolower(
+            trim((string) $request->query('status', ''))
+        );
 
-    return view('applications.index', [
-        'applications' => $applications,
-    ]);
-}
+        $applicationsQuery = JobApplication::with('jobPost')
+            ->where('job_seeker_id', $request->user()->id);
 
+        if ($selectedStatus !== '') {
+            $applicationsQuery->where('status', $selectedStatus);
+        }
+
+        $applications = $applicationsQuery
+            ->latest()
+            ->get();
+
+        $availableStatuses = JobApplication::query()
+            ->where('job_seeker_id', $request->user()->id)
+            ->select('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status');
+
+        return view('applications.index', [
+            'applications' => $applications,
+            'availableStatuses' => $availableStatuses,
+            'selectedStatus' => $selectedStatus,
+        ]);
+    }
 }
