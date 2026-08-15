@@ -150,8 +150,6 @@ class JobApplicationController extends Controller
 
     /**
      * Return the reason why the application cannot continue.
-     *
-     * A null value means that the job seeker can apply.
      */
     private function getApplicationUnavailableMessage(
         JobPost $jobPost,
@@ -175,9 +173,6 @@ class JobApplicationController extends Controller
         |--------------------------------------------------------------------------
         | Application Deadline Check
         |--------------------------------------------------------------------------
-        |
-        | A deadline equal to today's date is still accepted.
-        |
         */
 
         if ($jobPost->application_deadline !== null) {
@@ -208,56 +203,153 @@ class JobApplicationController extends Controller
         return null;
     }
 
+    /**
+     * Display the job seeker's submitted applications.
+     */
+    public function index(Request $request): View
+    {
+        $applications = JobApplication::with('jobPost')
+            ->where(
+                'job_seeker_id',
+                $request->user()->id
+            )
+            ->latest()
+            ->get();
 
- /**
- * Display the job seeker's submitted applications.
- */
-public function index(Request $request): View
-{
-    $applications = JobApplication::with('jobPost')
-        ->where('job_seeker_id', $request->user()->id)
-        ->latest()
-        ->get();
+        return view('applications.index', [
+            'applications' => $applications,
+        ]);
+    }
 
-    return view('applications.index', [
-        'applications' => $applications,
-    ]);
-}
+    /**
+     * Display applicants for an employer's job posting.
+     */
+    public function employerApplicants(
+        Request $request,
+        JobPost $jobPost
+    ): View {
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Access
+        |--------------------------------------------------------------------------
+        */
 
-/**
- * Display applicants for an employer's job posting.
- */
-public function employerApplicants(
-    Request $request,
-    JobPost $jobPost
-): View {
-    abort_unless(
-        $request->user() !== null,
-        401,
-        'Please log in before viewing applicants.'
-    );
+        abort_unless(
+            $request->user() !== null,
+            401,
+            'Please log in before viewing applicants.'
+        );
 
-    abort_unless(
-        strtolower(trim((string) $request->user()->role)) === 'employer',
-        403,
-        'Only employers can view applicants.'
-    );
+        abort_unless(
+            strtolower(
+                trim((string) $request->user()->role)
+            ) === 'employer',
+            403,
+            'Only employers can view applicants.'
+        );
 
-    abort_unless(
-        $jobPost->employer_id === $request->user()->id,
-        403,
-        'You can only view applicants for your own job postings.'
-    );
+        abort_unless(
+            $jobPost->employer_id === $request->user()->id,
+            403,
+            'You can only view applicants for your own job postings.'
+        );
 
-    $applications = $jobPost->applications()
-        ->with('jobSeeker')
-        ->latest()
-        ->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Applicant Search and Status Filter
+        |--------------------------------------------------------------------------
+        */
 
-    return view('applications.employer-index', [
-        'jobPost' => $jobPost,
-        'applications' => $applications,
-    ]);
-}
+        $search = trim(
+            (string) $request->query('search', '')
+        );
 
+        $selectedStatus = strtolower(
+            trim(
+                (string) $request->query(
+                    'status',
+                    ''
+                )
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Available Application Statuses
+        |--------------------------------------------------------------------------
+        */
+
+        $availableStatuses = $jobPost
+            ->applications()
+            ->whereNotNull('status')
+            ->select('status')
+            ->distinct()
+            ->orderBy('status')
+            ->pluck('status');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Retrieve Applicants
+        |--------------------------------------------------------------------------
+        */
+
+        $applicationsQuery = $jobPost
+            ->applications()
+            ->with('jobSeeker');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search by Applicant Name or Email
+        |--------------------------------------------------------------------------
+        */
+
+        if ($search !== '') {
+            $applicationsQuery->whereHas(
+                'jobSeeker',
+                function ($query) use ($search) {
+                    $query
+                        ->where(
+                            'name',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'email',
+                            'like',
+                            '%' . $search . '%'
+                        );
+                }
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter by Application Status
+        |--------------------------------------------------------------------------
+        */
+
+        if ($selectedStatus !== '') {
+            $applicationsQuery->where(
+                'status',
+                $selectedStatus
+            );
+        }
+
+        $applications = $applicationsQuery
+            ->latest()
+            ->get();
+
+        return view(
+            'applications.employer-index',
+            [
+                'jobPost' => $jobPost,
+                'applications' => $applications,
+                'availableStatuses' =>
+                    $availableStatuses,
+                'search' => $search,
+                'selectedStatus' =>
+                    $selectedStatus,
+            ]
+        );
+    }
 }
