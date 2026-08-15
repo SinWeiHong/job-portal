@@ -115,7 +115,11 @@ Route::get(
         [AdminUserController::class, 'index']
     )->name('admin.users.index');
 
-    
+    Route::patch(
+    '/admin/users/{user}/deactivate',
+    [AdminUserController::class, 'deactivate']
+    )->name('admin.users.deactivate');
+
 
     /*
     |--------------------------------------------------------------------------

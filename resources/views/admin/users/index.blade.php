@@ -27,7 +27,7 @@
 
         .page-container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1150px;
             margin: 0 auto;
         }
 
@@ -86,13 +86,29 @@
             line-height: 1.6;
         }
 
+        .alert {
+            margin-bottom: 22px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            border: 1px solid #86efac;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .alert-error {
+            border: 1px solid #fca5a5;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
         .summary-grid {
             display: grid;
             grid-template-columns:
-                repeat(
-                    3,
-                    minmax(0, 1fr)
-                );
+                repeat(3, minmax(0, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -218,6 +234,27 @@
             color: #991b1b;
         }
 
+        .deactivate-button {
+            padding: 9px 13px;
+            border: none;
+            border-radius: 7px;
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .deactivate-button:hover {
+            background: #b91c1c;
+        }
+
+        .inactive-text {
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
         .not-available {
             color: #9ca3af;
         }
@@ -298,12 +335,35 @@
             <h1>User Management</h1>
 
             <p class="subtitle">
-                Review registered job seeker and
-                employer accounts and monitor
-                their current account status.
+                Review registered user accounts
+                and deactivate accounts when
+                necessary to prevent misuse of
+                the platform.
             </p>
 
         </header>
+
+        @if (session('success'))
+
+            <div
+                class="alert alert-success"
+                role="alert"
+            >
+                {{ session('success') }}
+            </div>
+
+        @endif
+
+        @if ($errors->has('account'))
+
+            <div
+                class="alert alert-error"
+                role="alert"
+            >
+                {{ $errors->first('account') }}
+            </div>
+
+        @endif
 
         <section class="summary-grid">
 
@@ -352,8 +412,9 @@
                 <h2>Registered Users</h2>
 
                 <p>
-                    Job seeker and employer accounts
-                    available for administrative review.
+                    Review job seeker and employer
+                    accounts and manage their
+                    account status.
                 </p>
 
             </div>
@@ -365,9 +426,9 @@
                     <h2>No user accounts found</h2>
 
                     <p>
-                        There are currently no job seeker
-                        or employer accounts available
-                        for administrative review.
+                        There are currently no user
+                        accounts available for
+                        administrative review.
                     </p>
 
                 </div>
@@ -384,8 +445,9 @@
                                 <th>User</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Account Status</th>
+                                <th>Status</th>
                                 <th>Deactivated At</th>
+                                <th>Action</th>
                             </tr>
 
                         </thead>
@@ -475,6 +537,47 @@
 
                                             <span class="not-available">
                                                 —
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        @if ($user->is_active)
+
+                                            <form
+                                                method="POST"
+                                                action="{{
+                                                    route(
+                                                        'admin.users.deactivate',
+                                                        $user
+                                                    )
+                                                }}"
+                                                onsubmit="
+                                                    return confirm(
+                                                        'Are you sure you want to deactivate this user account?'
+                                                    );
+                                                "
+                                            >
+
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <button
+                                                    type="submit"
+                                                    class="deactivate-button"
+                                                >
+                                                    Deactivate
+                                                </button>
+
+                                            </form>
+
+                                        @else
+
+                                            <span class="inactive-text">
+                                                Already Inactive
                                             </span>
 
                                         @endif

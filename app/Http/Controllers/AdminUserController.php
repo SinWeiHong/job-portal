@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -73,6 +74,75 @@ class AdminUserController extends Controller
                     $inactiveUsers,
             ]
         );
+    }
+
+    /**
+     * Deactivate a selected user account.
+     */
+    public function deactivate(
+        Request $request,
+        User $user
+    ): RedirectResponse {
+        /*
+        |--------------------------------------------------------------------------
+        | Administrator Authorization
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureAdministrator($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent Administrator Account Deactivation
+        |--------------------------------------------------------------------------
+        */
+
+        abort_if(
+            strtolower(
+                trim((string) $user->role)
+            ) === 'administrator',
+            403,
+            'Administrator accounts cannot be deactivated.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Already Inactive Account
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user->is_active) {
+            return redirect()
+                ->route('admin.users.index')
+                ->withErrors([
+                    'account' =>
+                        'This user account is already inactive.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Deactivate Account
+        |--------------------------------------------------------------------------
+        */
+
+        $user->update([
+            'is_active' =>
+                false,
+
+            'deactivated_at' =>
+                now(),
+
+            'deactivated_by' =>
+                $request->user()->id,
+        ]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with(
+                'success',
+                'The user account has been deactivated successfully.'
+            );
     }
 
     /**
