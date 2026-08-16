@@ -18,19 +18,7 @@ class JobApplicationController extends Controller
         Request $request,
         JobPost $jobPost
     ): View {
-        /*
-        |--------------------------------------------------------------------------
-        | Authentication and Role Validation
-        |--------------------------------------------------------------------------
-        */
-
         $this->ensureJobSeeker($request);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Application Availability
-        |--------------------------------------------------------------------------
-        */
 
         $applicationUnavailableMessage =
             $this->getApplicationUnavailableMessage(
@@ -53,19 +41,7 @@ class JobApplicationController extends Controller
         Request $request,
         JobPost $jobPost
     ): RedirectResponse {
-        /*
-        |--------------------------------------------------------------------------
-        | Authentication and Role Validation
-        |--------------------------------------------------------------------------
-        */
-
         $this->ensureJobSeeker($request);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Job Status, Deadline and Duplicate Validation
-        |--------------------------------------------------------------------------
-        */
 
         $applicationUnavailableMessage =
             $this->getApplicationUnavailableMessage(
@@ -80,12 +56,6 @@ class JobApplicationController extends Controller
                 ])
                 ->withInput();
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cover Letter Validation
-        |--------------------------------------------------------------------------
-        */
 
         $validated = $request->validate(
             [
@@ -107,21 +77,20 @@ class JobApplicationController extends Controller
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Save Application
-        |--------------------------------------------------------------------------
-        */
-
         JobApplication::create([
             'job_post_id' => $jobPost->id,
             'job_seeker_id' => $request->user()->id,
-            'cover_letter' => trim($validated['cover_letter']),
+            'cover_letter' => trim(
+                $validated['cover_letter']
+            ),
             'status' => 'pending',
         ]);
 
         return redirect()
-            ->route('applications.create', $jobPost)
+            ->route(
+                'applications.create',
+                $jobPost
+            )
             ->with(
                 'success',
                 'Your job application has been submitted successfully.'
@@ -131,8 +100,9 @@ class JobApplicationController extends Controller
     /**
      * Confirm that the current user is a logged-in job seeker.
      */
-    private function ensureJobSeeker(Request $request): void
-    {
+    private function ensureJobSeeker(
+        Request $request
+    ): void {
         abort_unless(
             $request->user() !== null,
             401,
@@ -141,7 +111,9 @@ class JobApplicationController extends Controller
 
         abort_unless(
             strtolower(
-                trim((string) $request->user()->role)
+                trim(
+                    (string) $request->user()->role
+                )
             ) === 'job_seeker',
             403,
             'Only job seekers can access this function.'
@@ -150,8 +122,6 @@ class JobApplicationController extends Controller
 
     /**
      * Return the reason why the application cannot continue.
-     *
-     * A null value means that the job seeker can apply.
      */
     private function getApplicationUnavailableMessage(
         JobPost $jobPost,
@@ -159,13 +129,15 @@ class JobApplicationController extends Controller
     ): ?string {
         /*
         |--------------------------------------------------------------------------
-        | Job Status Check
+        | Job Status
         |--------------------------------------------------------------------------
         */
 
         if (
             strtolower(
-                trim((string) $jobPost->status)
+                trim(
+                    (string) $jobPost->status
+                )
             ) !== 'open'
         ) {
             return 'This job posting is not open for applications.';
@@ -173,11 +145,14 @@ class JobApplicationController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Application Deadline Check
+        | Application Deadline
         |--------------------------------------------------------------------------
         */
 
-        if ($jobPost->application_deadline !== null) {
+        if (
+            $jobPost->application_deadline
+            !== null
+        ) {
             $deadline = Carbon::parse(
                 $jobPost->application_deadline
             )->startOfDay();
@@ -189,14 +164,21 @@ class JobApplicationController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Duplicate Application Check
+        | Duplicate Application
         |--------------------------------------------------------------------------
         */
 
-        $alreadyApplied = JobApplication::query()
-            ->where('job_post_id', $jobPost->id)
-            ->where('job_seeker_id', $jobSeekerId)
-            ->exists();
+        $alreadyApplied =
+            JobApplication::query()
+                ->where(
+                    'job_post_id',
+                    $jobPost->id
+                )
+                ->where(
+                    'job_seeker_id',
+                    $jobSeekerId
+                )
+                ->exists();
 
         if ($alreadyApplied) {
             return 'You have already applied for this job.';
@@ -206,39 +188,51 @@ class JobApplicationController extends Controller
     }
 
     /**
-     * Display the logged-in job seeker's submitted applications.
+     * Display the logged-in job seeker's
+     * submitted applications.
+     *
+     * JPW-5
      */
-    public function index(Request $request): View|RedirectResponse
-    {
+    public function index(
+        Request $request
+    ): View|RedirectResponse {
         /*
         |--------------------------------------------------------------------------
-        | Authentication and Role Validation
+        | Job Seeker Access
         |--------------------------------------------------------------------------
         */
 
         $this->ensureJobSeeker($request);
 
-        $jobSeekerId = $request->user()->id;
+        $jobSeekerId =
+            $request->user()->id;
 
         /*
         |--------------------------------------------------------------------------
-        | Available Statuses
+        | Available Application Statuses
         |--------------------------------------------------------------------------
         */
 
-        $availableStatuses = JobApplication::query()
-            ->where('job_seeker_id', $jobSeekerId)
-            ->whereNotNull('status')
-            ->pluck('status')
-            ->map(
-                fn ($status) => strtolower(
-                    trim((string) $status)
+        $availableStatuses =
+            JobApplication::query()
+                ->where(
+                    'job_seeker_id',
+                    $jobSeekerId
                 )
-            )
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
+                ->whereNotNull('status')
+                ->pluck('status')
+                ->map(
+                    fn ($status) =>
+                        strtolower(
+                            trim(
+                                (string) $status
+                            )
+                        )
+                )
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -246,34 +240,52 @@ class JobApplicationController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $rawStatus = $request->query('status');
+        $rawStatus =
+            $request->query('status');
 
-        if ($rawStatus !== null && !is_string($rawStatus)) {
+        if (
+            $rawStatus !== null
+            && !is_string($rawStatus)
+        ) {
             return redirect()
-                ->route('applications.index')
+                ->route(
+                    'applications.index'
+                )
                 ->withErrors([
                     'status' =>
                         'The application status filter is invalid.',
                 ]);
         }
 
-        $selectedStatus = strtolower(
-            trim((string) $rawStatus)
-        );
+        $selectedStatus =
+            strtolower(
+                trim(
+                    (string) $rawStatus
+                )
+            );
 
         if (
             $selectedStatus !== ''
             && (
-                strlen($selectedStatus) > 20
+                strlen(
+                    $selectedStatus
+                ) > 20
+
                 || preg_match(
                     '/^[a-z0-9_-]+$/',
                     $selectedStatus
                 ) !== 1
-                || !$availableStatuses->contains($selectedStatus)
+
+                || !$availableStatuses
+                    ->contains(
+                        $selectedStatus
+                    )
             )
         ) {
             return redirect()
-                ->route('applications.index')
+                ->route(
+                    'applications.index'
+                )
                 ->withErrors([
                     'status' =>
                         'The selected application status is invalid.',
@@ -286,30 +298,342 @@ class JobApplicationController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $applicationsQuery = JobApplication::query()
-            ->with('jobPost')
-            ->where('job_seeker_id', $jobSeekerId);
+        $applicationsQuery =
+            JobApplication::query()
+                ->with('jobPost')
+                ->where(
+                    'job_seeker_id',
+                    $jobSeekerId
+                );
 
-        if ($selectedStatus !== '') {
-            $applicationsQuery->where(
-                'status',
-                $selectedStatus
-            );
+        if (
+            $selectedStatus !== ''
+        ) {
+            $applicationsQuery
+                ->where(
+                    'status',
+                    $selectedStatus
+                );
         }
 
-        $applications = $applicationsQuery
-            ->latest()
-            ->get();
+        $applications =
+            $applicationsQuery
+                ->latest()
+                ->get();
 
-        $totalApplications = JobApplication::query()
-            ->where('job_seeker_id', $jobSeekerId)
-            ->count();
+        $totalApplications =
+            JobApplication::query()
+                ->where(
+                    'job_seeker_id',
+                    $jobSeekerId
+                )
+                ->count();
 
-        return view('applications.index', [
-            'applications' => $applications,
-            'availableStatuses' => $availableStatuses,
-            'selectedStatus' => $selectedStatus,
-            'totalApplications' => $totalApplications,
-        ]);
+        return view(
+            'applications.index',
+            [
+                'applications' =>
+                    $applications,
+
+                'availableStatuses' =>
+                    $availableStatuses,
+
+                'selectedStatus' =>
+                    $selectedStatus,
+
+                'totalApplications' =>
+                    $totalApplications,
+            ]
+        );
+    }
+
+    /**
+     * Display applicants for an employer's
+     * own job posting.
+     *
+     * JPW-10
+     */
+    public function employerApplicants(
+        Request $request,
+        JobPost $jobPost
+    ): View|RedirectResponse {
+        /*
+        |--------------------------------------------------------------------------
+        | Employer Access
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            $request->user() !== null,
+            401,
+            'Please log in before viewing applicants.'
+        );
+
+        abort_unless(
+            strtolower(
+                trim(
+                    (string)
+                    $request->user()->role
+                )
+            ) === 'employer',
+            403,
+            'Only employers can view applicants.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Ownership
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            (int) $jobPost->employer_id
+                ===
+            (int) $request->user()->id,
+            403,
+            'You can only view applicants for your own job postings.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Available Application Statuses
+        |--------------------------------------------------------------------------
+        */
+
+        $availableStatuses =
+            $jobPost
+                ->applications()
+                ->whereNotNull('status')
+                ->pluck('status')
+                ->map(
+                    fn ($status) =>
+                        strtolower(
+                            trim(
+                                (string) $status
+                            )
+                        )
+                )
+                ->filter()
+                ->unique()
+                ->sort()
+                ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $rawSearch =
+            $request->query('search');
+
+        if (
+            $rawSearch !== null
+            && !is_string($rawSearch)
+        ) {
+            return redirect()
+                ->route(
+                    'employer.applicants.index',
+                    $jobPost
+                )
+                ->withErrors([
+                    'search' =>
+                        'The applicant search value is invalid.',
+                ]);
+        }
+
+        $search = trim(
+            (string) $rawSearch
+        );
+
+        if (
+            strlen($search) > 100
+        ) {
+            return redirect()
+                ->route(
+                    'employer.applicants.index',
+                    $jobPost
+                )
+                ->withErrors([
+                    'search' =>
+                        'The applicant search must not exceed 100 characters.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status Filter Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $rawStatus =
+            $request->query('status');
+
+        if (
+            $rawStatus !== null
+            && !is_string($rawStatus)
+        ) {
+            return redirect()
+                ->route(
+                    'employer.applicants.index',
+                    $jobPost
+                )
+                ->withErrors([
+                    'status' =>
+                        'The application status filter is invalid.',
+                ]);
+        }
+
+        $selectedStatus =
+            strtolower(
+                trim(
+                    (string) $rawStatus
+                )
+            );
+
+        if (
+            $selectedStatus !== ''
+            && (
+                strlen(
+                    $selectedStatus
+                ) > 20
+
+                || preg_match(
+                    '/^[a-z0-9_-]+$/',
+                    $selectedStatus
+                ) !== 1
+
+                || !$availableStatuses
+                    ->contains(
+                        $selectedStatus
+                    )
+            )
+        ) {
+            return redirect()
+                ->route(
+                    'employer.applicants.index',
+                    $jobPost
+                )
+                ->withErrors([
+                    'status' =>
+                        'The selected application status is invalid.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Applicant Query
+        |--------------------------------------------------------------------------
+        */
+
+        $applicationsQuery =
+            $jobPost
+                ->applications()
+                ->with('jobSeeker');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search by Name or Email
+        |--------------------------------------------------------------------------
+        */
+
+        if ($search !== '') {
+            $applicationsQuery
+                ->whereHas(
+                    'jobSeeker',
+                    function ($query) use (
+                        $search
+                    ) {
+                        $query
+                            ->where(
+                                'name',
+                                'like',
+                                '%' .
+                                $search .
+                                '%'
+                            )
+                            ->orWhere(
+                                'email',
+                                'like',
+                                '%' .
+                                $search .
+                                '%'
+                            );
+                    }
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter by Status
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $selectedStatus !== ''
+        ) {
+            $applicationsQuery
+                ->where(
+                    'status',
+                    $selectedStatus
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Retrieve Applicants
+        |--------------------------------------------------------------------------
+        */
+
+        $applications =
+            $applicationsQuery
+                ->latest()
+                ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Applicant Summary
+        |--------------------------------------------------------------------------
+        */
+
+        $totalApplicants =
+            $jobPost
+                ->applications()
+                ->count();
+
+        $pendingApplicants =
+            $jobPost
+                ->applications()
+                ->where(
+                    'status',
+                    'pending'
+                )
+                ->count();
+
+        return view(
+            'applications.employer-index',
+            [
+                'jobPost' =>
+                    $jobPost,
+
+                'applications' =>
+                    $applications,
+
+                'availableStatuses' =>
+                    $availableStatuses,
+
+                'search' =>
+                    $search,
+
+                'selectedStatus' =>
+                    $selectedStatus,
+
+                'totalApplicants' =>
+                    $totalApplicants,
+
+                'pendingApplicants' =>
+                    $pendingApplicants,
+            ]
+        );
     }
 }
