@@ -27,7 +27,7 @@
 
         .page-container {
             width: 100%;
-            max-width: 1150px;
+            max-width: 1180px;
             margin: 0 auto;
         }
 
@@ -38,11 +38,9 @@
             gap: 20px;
             margin-bottom: 28px;
             padding: 18px 24px;
+            border-radius: 14px;
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow:
-                0 6px 20px
-                rgba(0, 0, 0, 0.06);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
         .portal-name {
@@ -72,23 +70,24 @@
         }
 
         .page-header {
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         h1 {
             margin-bottom: 8px;
+            color: #111827;
             font-size: 32px;
         }
 
         .subtitle {
-            max-width: 720px;
+            max-width: 750px;
             color: #6b7280;
             line-height: 1.6;
         }
 
         .alert {
             margin-bottom: 22px;
-            padding: 14px 18px;
+            padding: 15px 18px;
             border-radius: 10px;
             line-height: 1.5;
         }
@@ -109,48 +108,45 @@
             display: grid;
             grid-template-columns:
                 repeat(3, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 18px;
+            margin-bottom: 25px;
         }
 
         .summary-card {
-            padding: 22px;
+            padding: 23px;
             border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            border-radius: 14px;
             background: #ffffff;
-            box-shadow:
-                0 6px 18px
-                rgba(0, 0, 0, 0.04);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
         }
 
         .summary-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 9px;
             color: #6b7280;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
         }
 
         .summary-value {
             color: #111827;
-            font-size: 30px;
+            font-size: 31px;
             font-weight: bold;
         }
 
         .table-card {
             overflow: hidden;
+            border: 1px solid #e5e7eb;
             border-radius: 14px;
             background: #ffffff;
-            box-shadow:
-                0 10px 30px
-                rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         .table-heading {
-            padding: 20px 22px;
-            border-bottom:
-                1px solid #e5e7eb;
+            padding: 21px 23px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .table-heading h2 {
@@ -175,8 +171,7 @@
         th,
         td {
             padding: 16px;
-            border-bottom:
-                1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
             text-align: left;
             vertical-align: middle;
         }
@@ -185,6 +180,7 @@
             background: #f9fafb;
             color: #4b5563;
             font-size: 12px;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
@@ -195,6 +191,10 @@
 
         tbody tr:hover {
             background: #f9fafb;
+        }
+
+        .inactive-row {
+            background: #fefefe;
         }
 
         .user-name {
@@ -209,6 +209,10 @@
             font-size: 12px;
         }
 
+        .email {
+            color: #4b5563;
+        }
+
         .role-badge,
         .status-badge {
             display: inline-block;
@@ -221,7 +225,6 @@
         .role-badge {
             background: #eff6ff;
             color: #1d4ed8;
-            text-transform: capitalize;
         }
 
         .status-active {
@@ -235,7 +238,7 @@
         }
 
         .deactivate-button {
-            padding: 9px 13px;
+            padding: 9px 14px;
             border: none;
             border-radius: 7px;
             background: #dc2626;
@@ -255,6 +258,18 @@
             font-weight: 600;
         }
 
+        .deactivation-details {
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        .deactivation-admin {
+            display: block;
+            margin-top: 3px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
         .not-available {
             color: #9ca3af;
         }
@@ -270,7 +285,7 @@
             color: #374151;
         }
 
-        @media (max-width: 760px) {
+        @media (max-width: 800px) {
             body {
                 padding: 24px 12px;
             }
@@ -309,11 +324,7 @@
             <div class="navigation-actions">
 
                 <a
-                    href="{{
-                        route(
-                            'admin.job-posts.index'
-                        )
-                    }}"
+                    href="{{ route('admin.job-posts.index') }}"
                     class="nav-link"
                 >
                     Job Moderation
@@ -335,10 +346,9 @@
             <h1>User Management</h1>
 
             <p class="subtitle">
-                Review registered user accounts
-                and deactivate accounts when
-                necessary to prevent misuse of
-                the platform.
+                Review registered user accounts and deactivate
+                accounts when necessary to prevent misuse of
+                the Job Portal Website.
             </p>
 
         </header>
@@ -412,9 +422,8 @@
                 <h2>Registered Users</h2>
 
                 <p>
-                    Review job seeker and employer
-                    accounts and manage their
-                    account status.
+                    Job seeker and employer accounts
+                    available for administrative management.
                 </p>
 
             </div>
@@ -426,9 +435,8 @@
                     <h2>No user accounts found</h2>
 
                     <p>
-                        There are currently no user
-                        accounts available for
-                        administrative review.
+                        There are currently no job seeker
+                        or employer accounts available.
                     </p>
 
                 </div>
@@ -446,7 +454,7 @@
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Status</th>
-                                <th>Deactivated At</th>
+                                <th>Deactivation Details</th>
                                 <th>Action</th>
                             </tr>
 
@@ -456,7 +464,13 @@
 
                             @foreach ($users as $user)
 
-                                <tr>
+                                <tr
+                                    class="{{
+                                        !$user->is_active
+                                            ? 'inactive-row'
+                                            : ''
+                                    }}"
+                                >
 
                                     <td>
 
@@ -471,7 +485,7 @@
 
                                     </td>
 
-                                    <td>
+                                    <td class="email">
                                         {{ $user->email }}
                                     </td>
 
@@ -525,13 +539,34 @@
 
                                         @if ($user->deactivated_at)
 
-                                            {{
-                                                $user
-                                                    ->deactivated_at
-                                                    ->format(
-                                                        'd/m/Y h:i A'
-                                                    )
-                                            }}
+                                            <div class="deactivation-details">
+
+                                                {{
+                                                    $user
+                                                        ->deactivated_at
+                                                        ->format(
+                                                            'd/m/Y h:i A'
+                                                        )
+                                                }}
+
+                                                @if ($user->deactivatedBy)
+
+                                                    <span
+                                                        class="
+                                                            deactivation-admin
+                                                        "
+                                                    >
+                                                        By:
+                                                        {{
+                                                            $user
+                                                                ->deactivatedBy
+                                                                ->name
+                                                        }}
+                                                    </span>
+
+                                                @endif
+
+                                            </div>
 
                                         @else
 
@@ -557,7 +592,7 @@
                                                 }}"
                                                 onsubmit="
                                                     return confirm(
-                                                        'Are you sure you want to deactivate this user account?'
+                                                        'Are you sure you want to deactivate {{ addslashes($user->name) }}? This user will no longer be able to access the system.'
                                                     );
                                                 "
                                             >
@@ -567,7 +602,9 @@
 
                                                 <button
                                                     type="submit"
-                                                    class="deactivate-button"
+                                                    class="
+                                                        deactivate-button
+                                                    "
                                                 >
                                                     Deactivate
                                                 </button>
@@ -577,7 +614,7 @@
                                         @else
 
                                             <span class="inactive-text">
-                                                Already Inactive
+                                                Account Deactivated
                                             </span>
 
                                         @endif

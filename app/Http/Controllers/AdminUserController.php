@@ -12,31 +12,37 @@ class AdminUserController extends Controller
     /**
      * Display user accounts for administrator review.
      */
-    public function index(Request $request): View
-    {
+    public function index(
+        Request $request
+    ): View {
         /*
         |--------------------------------------------------------------------------
         | Administrator Authorization
         |--------------------------------------------------------------------------
         */
 
-        $this->ensureAdministrator($request);
+        $this->ensureAdministrator(
+            $request
+        );
 
         /*
         |--------------------------------------------------------------------------
-        | Retrieve User Accounts
+        | Retrieve Manageable Accounts
         |--------------------------------------------------------------------------
         |
-        | Administrator accounts are excluded because JPW-15 is intended
-        | for administrators to manage normal platform users.
+        | Only job seekers and employers are manageable under JPW-15.
+        | Administrator accounts are intentionally excluded.
         |
         */
 
         $users = User::query()
-            ->where(
+            ->with('deactivatedBy')
+            ->whereIn(
                 'role',
-                '!=',
-                'administrator'
+                [
+                    'job_seeker',
+                    'employer',
+                ]
             )
             ->orderBy('name')
             ->get();
@@ -89,31 +95,47 @@ class AdminUserController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $this->ensureAdministrator($request);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Prevent Administrator Account Deactivation
-        |--------------------------------------------------------------------------
-        */
-
-        abort_if(
-            strtolower(
-                trim((string) $user->role)
-            ) === 'administrator',
-            403,
-            'Administrator accounts cannot be deactivated.'
+        $this->ensureAdministrator(
+            $request
         );
 
         /*
         |--------------------------------------------------------------------------
-        | Already Inactive Account
+        | Manageable Role Validation
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !in_array(
+                strtolower(
+                    trim(
+                        (string) $user->role
+                    )
+                ),
+                [
+                    'job_seeker',
+                    'employer',
+                ],
+                true
+            )
+        ) {
+            abort(
+                403,
+                'Administrator accounts cannot be deactivated.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Already Inactive Validation
         |--------------------------------------------------------------------------
         */
 
         if (!$user->is_active) {
             return redirect()
-                ->route('admin.users.index')
+                ->route(
+                    'admin.users.index'
+                )
                 ->withErrors([
                     'account' =>
                         'This user account is already inactive.',
@@ -138,7 +160,9 @@ class AdminUserController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.users.index')
+            ->route(
+                'admin.users.index'
+            )
             ->with(
                 'success',
                 'The user account has been deactivated successfully.'

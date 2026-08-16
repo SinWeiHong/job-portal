@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -30,6 +28,16 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Default values for new user accounts.
+     *
+     * All newly created users are active unless
+     * explicitly deactivated by an administrator.
+     */
+    protected $attributes = [
+        'is_active' => true,
+    ];
 
     /**
      * Get all job applications submitted by this user.

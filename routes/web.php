@@ -8,7 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobPostController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Middleware\EnsureAccountIsActive;
 
 
 /*
@@ -59,7 +59,11 @@ Route::post(
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware([
+    'auth',
+    EnsureAccountIsActive::class,
+])->group(function () {
+    
     /*
     |--------------------------------------------------------------------------
     | Dashboard and Logout
