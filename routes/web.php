@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\AdminJobPostController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobPostController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Middleware\EnsureAccountIsActive;
 
 
 /*
@@ -58,7 +59,11 @@ Route::post(
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware([
+    'auth',
+    EnsureAccountIsActive::class,
+])->group(function () {
+    
     /*
     |--------------------------------------------------------------------------
     | Dashboard and Logout
@@ -104,6 +109,23 @@ Route::get(
     '/admin/job-postings/{jobPost}',
     [AdminJobPostController::class, 'show']
 )->name('admin.job-posts.show');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator User Management Routes — JPW-15
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/admin/users',
+        [AdminUserController::class, 'index']
+    )->name('admin.users.index');
+
+    Route::patch(
+    '/admin/users/{user}/deactivate',
+    [AdminUserController::class, 'deactivate']
+    )->name('admin.users.deactivate');
+
 
     /*
     |--------------------------------------------------------------------------
