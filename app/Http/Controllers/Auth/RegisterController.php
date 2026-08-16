@@ -41,12 +41,16 @@ class RegisterController extends Controller
                     'unique:users,email',
                 ],
 
-                'password' => [
-                    'required',
-                    'string',
-                    'confirmed',
-                    Password::defaults(),
-                ],
+              'password' => [
+    'required',
+    'string',
+    'min:8',
+    'regex:/[A-Z]/',
+    'regex:/[a-z]/',
+    'regex:/[0-9]/',
+    'regex:/[@$!%*?&#]/',
+    'confirmed',
+],
             ],
             [
                 'name.required' =>
@@ -68,10 +72,16 @@ class RegisterController extends Controller
                     'This email address has already been registered.',
 
                 'password.required' =>
-                    'Please enter a password.',
+    'Please enter your password.',
 
-                'password.confirmed' =>
-                    'The password confirmation does not match.',
+'password.min' =>
+    'The password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character.',
+
+'password.regex' =>
+    'The password must contain at least 8 characters, including one uppercase letter, one lowercase letter, one number, and one special character.',
+
+'password.confirmed' =>
+    'The password confirmation does not match.',
             ]
         );
 
