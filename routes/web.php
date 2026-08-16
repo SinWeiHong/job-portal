@@ -75,6 +75,8 @@ Route::middleware('auth')->group(function () {
         [LoginController::class, 'destroy']
     )->name('logout');
 
+    
+
 /*
 |--------------------------------------------------------------------------
 | Administrator Job Moderation Routes — JPW-13
@@ -150,4 +152,16 @@ Route::get(
         '/jobs/{jobPost}/apply',
         [JobApplicationController::class, 'store']
     )->name('applications.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | View Application — JPW-5
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+    '/applications',
+    [JobApplicationController::class, 'index']
+    )->name('applications.index');
+
 });

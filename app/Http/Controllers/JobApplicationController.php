@@ -144,7 +144,7 @@ class JobApplicationController extends Controller
                 trim((string) $request->user()->role)
             ) === 'job_seeker',
             403,
-            'Only job seekers can apply for jobs.'
+            'Only job seekers can access this function.'
         );
     }
 
@@ -175,9 +175,6 @@ class JobApplicationController extends Controller
         |--------------------------------------------------------------------------
         | Application Deadline Check
         |--------------------------------------------------------------------------
-        |
-        | A deadline equal to today's date is still accepted.
-        |
         */
 
         if ($jobPost->application_deadline !== null) {
@@ -206,5 +203,113 @@ class JobApplicationController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Display the logged-in job seeker's submitted applications.
+     */
+    public function index(Request $request): View|RedirectResponse
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication and Role Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensureJobSeeker($request);
+
+        $jobSeekerId = $request->user()->id;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Available Statuses
+        |--------------------------------------------------------------------------
+        */
+
+        $availableStatuses = JobApplication::query()
+            ->where('job_seeker_id', $jobSeekerId)
+            ->whereNotNull('status')
+            ->pluck('status')
+            ->map(
+                fn ($status) => strtolower(
+                    trim((string) $status)
+                )
+            )
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status Filter Validation
+        |--------------------------------------------------------------------------
+        */
+
+        $rawStatus = $request->query('status');
+
+        if ($rawStatus !== null && !is_string($rawStatus)) {
+            return redirect()
+                ->route('applications.index')
+                ->withErrors([
+                    'status' =>
+                        'The application status filter is invalid.',
+                ]);
+        }
+
+        $selectedStatus = strtolower(
+            trim((string) $rawStatus)
+        );
+
+        if (
+            $selectedStatus !== ''
+            && (
+                strlen($selectedStatus) > 20
+                || preg_match(
+                    '/^[a-z0-9_-]+$/',
+                    $selectedStatus
+                ) !== 1
+                || !$availableStatuses->contains($selectedStatus)
+            )
+        ) {
+            return redirect()
+                ->route('applications.index')
+                ->withErrors([
+                    'status' =>
+                        'The selected application status is invalid.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Retrieve Applications
+        |--------------------------------------------------------------------------
+        */
+
+        $applicationsQuery = JobApplication::query()
+            ->with('jobPost')
+            ->where('job_seeker_id', $jobSeekerId);
+
+        if ($selectedStatus !== '') {
+            $applicationsQuery->where(
+                'status',
+                $selectedStatus
+            );
+        }
+
+        $applications = $applicationsQuery
+            ->latest()
+            ->get();
+
+        $totalApplications = JobApplication::query()
+            ->where('job_seeker_id', $jobSeekerId)
+            ->count();
+
+        return view('applications.index', [
+            'applications' => $applications,
+            'availableStatuses' => $availableStatuses,
+            'selectedStatus' => $selectedStatus,
+            'totalApplications' => $totalApplications,
+        ]);
     }
 }
