@@ -83,6 +83,42 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
+/**
+ * An empty email address must be rejected.
+ */
+public function test_empty_email_is_rejected(): void
+{
+    $response = $this
+        ->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => '',
+            'password' => 'Password1!',
+        ]);
+
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors('email');
+
+    $this->assertGuest();
+}
+
+/**
+ * An invalid email format must be rejected.
+ */
+public function test_invalid_email_format_is_rejected(): void
+{
+    $response = $this
+        ->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => 'invalid-email',
+            'password' => 'Password1!',
+        ]);
+
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors('email');
+
+    $this->assertGuest();
+}
+
     /**
      * An unregistered email address must not
      * authenticate the user.
