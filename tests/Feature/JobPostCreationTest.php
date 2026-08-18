@@ -25,7 +25,6 @@ class JobPostCreationTest extends TestCase
             ->get(route('jobs.create'));
 
         $response->assertOk();
-
         $response->assertViewIs('jobs.create');
     }
 
@@ -122,9 +121,9 @@ class JobPostCreationTest extends TestCase
     }
 
     /**
-     * Invalid job posting information must be rejected.
+     * Required job posting information cannot be empty.
      */
-    public function test_invalid_job_posting_is_rejected(): void
+    public function test_required_job_posting_fields_are_rejected(): void
     {
         $employer = User::factory()->create([
             'role' => 'employer',
@@ -137,25 +136,125 @@ class JobPostCreationTest extends TestCase
                 'title' => '',
                 'location' => '',
                 'employment_type' => '',
-                'salary_min' => 5000,
-                'salary_max' => 3000,
+                'salary_min' => 3000,
+                'salary_max' => 4500,
                 'application_deadline' =>
-                    now()->subDay()->toDateString(),
+                    now()->addDays(14)->toDateString(),
                 'status' => 'open',
                 'description' => '',
                 'requirements' => '',
             ]);
 
-        $response->assertRedirect(route('jobs.create'));
+        $response
+            ->assertRedirect(route('jobs.create'))
+            ->assertSessionHasErrors([
+                'title',
+                'location',
+                'employment_type',
+                'description',
+            ]);
 
-        $response->assertSessionHasErrors([
-            'title',
-            'location',
-            'employment_type',
-            'salary_max',
-            'application_deadline',
-            'description',
+        $this->assertDatabaseCount('job_posts', 0);
+    }
+
+    /**
+     * A negative salary is rejected.
+     */
+    public function test_negative_salary_is_rejected(): void
+    {
+        $employer = User::factory()->create([
+            'role' => 'employer',
         ]);
+
+        $response = $this
+            ->actingAs($employer)
+            ->from(route('jobs.create'))
+            ->post(route('jobs.store'), [
+                'title' => 'Junior Software Developer',
+                'location' => 'Kuala Lumpur',
+                'employment_type' => 'Full-time',
+                'salary_min' => -100,
+                'salary_max' => 4500,
+                'application_deadline' =>
+                    now()->addDays(14)->toDateString(),
+                'status' => 'open',
+                'description' =>
+                    'Develop and maintain web applications.',
+                'requirements' =>
+                    'Basic knowledge of PHP, Laravel and MySQL.',
+            ]);
+
+        $response
+            ->assertRedirect(route('jobs.create'))
+            ->assertSessionHasErrors('salary_min');
+
+        $this->assertDatabaseCount('job_posts', 0);
+    }
+
+     /**
+     * A maximum salary lower than the minimum salary is rejected.
+     */
+    public function test_maximum_salary_lower_than_minimum_salary_is_rejected(): void
+    {
+        $employer = User::factory()->create([
+            'role' => 'employer',
+        ]);
+
+        $response = $this
+            ->actingAs($employer)
+            ->from(route('jobs.create'))
+            ->post(route('jobs.store'), [
+                'title' => 'Junior Software Developer',
+                'location' => 'Kuala Lumpur',
+                'employment_type' => 'Full-time',
+                'salary_min' => 5000,
+                'salary_max' => 3000,
+                'application_deadline' =>
+                    now()->addDays(14)->toDateString(),
+                'status' => 'open',
+                'description' =>
+                    'Develop and maintain web applications.',
+                'requirements' =>
+                    'Basic knowledge of PHP, Laravel and MySQL.',
+            ]);
+
+        $response
+            ->assertRedirect(route('jobs.create'))
+            ->assertSessionHasErrors('salary_max');
+
+        $this->assertDatabaseCount('job_posts', 0);
+    }
+
+    /**
+     * An application deadline in the past is rejected.
+     */
+    public function test_past_application_deadline_is_rejected(): void
+    {
+        $employer = User::factory()->create([
+            'role' => 'employer',
+        ]);
+
+        $response = $this
+            ->actingAs($employer)
+            ->from(route('jobs.create'))
+            ->post(route('jobs.store'), [
+                'title' => 'Junior Software Developer',
+                'location' => 'Kuala Lumpur',
+                'employment_type' => 'Full-time',
+                'salary_min' => 3000,
+                'salary_max' => 4500,
+                'application_deadline' =>
+                    now()->subDay()->toDateString(),
+                'status' => 'open',
+                'description' =>
+                    'Develop and maintain web applications.',
+                'requirements' =>
+                    'Basic knowledge of PHP, Laravel and MySQL.',
+            ]);
+
+        $response
+            ->assertRedirect(route('jobs.create'))
+            ->assertSessionHasErrors('application_deadline');
 
         $this->assertDatabaseCount('job_posts', 0);
     }
