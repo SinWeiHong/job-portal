@@ -222,6 +222,96 @@ class JobPostUpdateTest extends TestCase
         ]);
     }
 
+/**
+ * A negative salary is rejected.
+ */
+public function test_negative_salary_is_rejected(): void
+{
+    $employer = $this->createUser('employer');
+    $jobPost = $this->createJobPost($employer);
+
+    $response = $this
+        ->actingAs($employer)
+        ->from(route('jobs.edit', $jobPost))
+        ->put(
+            route('jobs.update', $jobPost),
+            $this->validJobData([
+                'salary_min' => -100,
+            ])
+        );
+
+    $response
+        ->assertRedirect(route('jobs.edit', $jobPost))
+        ->assertSessionHasErrors('salary_min');
+
+    $this->assertDatabaseHas('job_posts', [
+        'id' => $jobPost->id,
+        'salary_min' => 3000,
+        'salary_max' => 4500,
+    ]);
+}
+
+/**
+ * A maximum salary lower than the minimum salary is rejected.
+ */
+public function test_maximum_salary_lower_than_minimum_salary_is_rejected(): void
+{
+    $employer = $this->createUser('employer');
+    $jobPost = $this->createJobPost($employer);
+
+    $response = $this
+        ->actingAs($employer)
+        ->from(route('jobs.edit', $jobPost))
+        ->put(
+            route('jobs.update', $jobPost),
+            $this->validJobData([
+                'salary_min' => 5000,
+                'salary_max' => 3000,
+            ])
+        );
+
+    $response
+        ->assertRedirect(route('jobs.edit', $jobPost))
+        ->assertSessionHasErrors('salary_max');
+
+    $this->assertDatabaseHas('job_posts', [
+        'id' => $jobPost->id,
+        'salary_min' => 3000,
+        'salary_max' => 4500,
+    ]);
+}
+
+/**
+ * An application deadline in the past is rejected.
+ */
+public function test_past_application_deadline_is_rejected(): void
+{
+    $employer = $this->createUser('employer');
+    $jobPost = $this->createJobPost($employer);
+
+    $originalDeadline = $jobPost->application_deadline;
+
+    $response = $this
+        ->actingAs($employer)
+        ->from(route('jobs.edit', $jobPost))
+        ->put(
+            route('jobs.update', $jobPost),
+            $this->validJobData([
+                'application_deadline' =>
+                    now()->subDay()->toDateString(),
+            ])
+        );
+
+    $response
+        ->assertRedirect(route('jobs.edit', $jobPost))
+        ->assertSessionHasErrors('application_deadline');
+
+    $this->assertDatabaseHas('job_posts', [
+        'id' => $jobPost->id,
+        'application_deadline' => $originalDeadline,
+    ]);
+}
+
     /**
      * Create a test user with the selected role.
      */
